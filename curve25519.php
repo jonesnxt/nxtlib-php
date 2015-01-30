@@ -234,7 +234,7 @@ class curve25519 {
     //endregion
 
     function createUnpackedArray () {
-        return new Uint16Array($UNPACKED_SIZE);
+        return array();
     }
 
     /* Copy a number */
@@ -642,90 +642,90 @@ class curve25519 {
     function c255lmul8h ($a7, $a6, $a5, $a4, $a3, $a2, $a1, $a0, $b7, $b6, $b5, $b4, $b3, $b2, $b1, $b0) {
         $r = [];
         $v;
-        r[0] = (v = a0*b0) & 0xFFFF;
-        r[1] = (v = ((v / 0x10000) | 0) + a0*b1 + a1*b0) & 0xFFFF;
-        r[2] = (v = ((v / 0x10000) | 0) + a0*b2 + a1*b1 + a2*b0) & 0xFFFF;
-        r[3] = (v = ((v / 0x10000) | 0) + a0*b3 + a1*b2 + a2*b1 + a3*b0) & 0xFFFF;
-        r[4] = (v = ((v / 0x10000) | 0) + a0*b4 + a1*b3 + a2*b2 + a3*b1 + a4*b0) & 0xFFFF;
-        r[5] = (v = ((v / 0x10000) | 0) + a0*b5 + a1*b4 + a2*b3 + a3*b2 + a4*b1 + a5*b0) & 0xFFFF;
-        r[6] = (v = ((v / 0x10000) | 0) + a0*b6 + a1*b5 + a2*b4 + a3*b3 + a4*b2 + a5*b1 + a6*b0) & 0xFFFF;
-        r[7] = (v = ((v / 0x10000) | 0) + a0*b7 + a1*b6 + a2*b5 + a3*b4 + a4*b3 + a5*b2 + a6*b1 + a7*b0) & 0xFFFF;
-        r[8] = (v = ((v / 0x10000) | 0) + a1*b7 + a2*b6 + a3*b5 + a4*b4 + a5*b3 + a6*b2 + a7*b1) & 0xFFFF;
-        r[9] = (v = ((v / 0x10000) | 0) + a2*b7 + a3*b6 + a4*b5 + a5*b4 + a6*b3 + a7*b2) & 0xFFFF;
-        r[10] = (v = ((v / 0x10000) | 0) + a3*b7 + a4*b6 + a5*b5 + a6*b4 + a7*b3) & 0xFFFF;
-        r[11] = (v = ((v / 0x10000) | 0) + a4*b7 + a5*b6 + a6*b5 + a7*b4) & 0xFFFF;
-        r[12] = (v = ((v / 0x10000) | 0) + a5*b7 + a6*b6 + a7*b5) & 0xFFFF;
-        r[13] = (v = ((v / 0x10000) | 0) + a6*b7 + a7*b6) & 0xFFFF;
-        r[14] = (v = ((v / 0x10000) | 0) + a7*b7) & 0xFFFF;
-        r[15] = ((v / 0x10000) | 0);
+        $r[0] = ($v = $a0*$b0) & 0xFFFF;
+        $r[1] = ($v = (($v / 0x10000) | 0) + $a0*$b1 + $a1*$b0) & 0xFFFF;
+        $r[2] = ($v = (($v / 0x10000) | 0) + $a0*$b2 + $a1*$b1 + $a2*$b0) & 0xFFFF;
+        $r[3] = ($v = (($v / 0x10000) | 0) + $a0*$b3 + $a1*$b2 + $a2*$b1 + $a3*$b0) & 0xFFFF;
+        $r[4] = ($v = (($v / 0x10000) | 0) + $a0*$b4 + $a1*$b3 + $a2*$b2 + $a3*$b1 + $a4*$b0) & 0xFFFF;
+        $r[5] = ($v = (($v / 0x10000) | 0) + $a0*$b5 + $a1*$b4 + $a2*$b3 + $a3*$b2 + $a4*$b1 + $a5*$b0) & 0xFFFF;
+        $r[6] = ($v = (($v / 0x10000) | 0) + $a0*$b6 + $a1*$b5 + $a2*$b4 + $a3*$b3 + $a4*$b2 + $a5*$b1 + $a6*$b0) & 0xFFFF;
+        $r[7] = ($v = (($v / 0x10000) | 0) + $a0*$b7 + $a1*$b6 + $a2*$b5 + $a3*$b4 + $a4*$b3 + $a5*$b2 + $a6*$b1 + $a7*$b0) & 0xFFFF;
+        $r[8] = ($v = (($v / 0x10000) | 0) + $a1*$b7 + $a2*$b6 + $a3*$b5 + $a4*$b4 + $a5*$b3 + $a6*$b2 + $a7*$b1) & 0xFFFF;
+        $r[9] = ($v = (($v / 0x10000) | 0) + $a2*$b7 + $a3*$b6 + $a4*$b5 + $a5*$b4 + $a6*$b3 + $a7*$b2) & 0xFFFF;
+        $r[10] = ($v = (($v / 0x10000) | 0) + $a3*$b7 + $a4*$b6 + $a5*$b5 + $a6*$b4 + $a7*$b3) & 0xFFFF;
+        $r[11] = ($v = (($v / 0x10000) | 0) + $a4*$b7 + $a5*$b6 + $a6*$b5 + $a7*$b4) & 0xFFFF;
+        $r[12] = ($v = (($v / 0x10000) | 0) + $a5*$b7 + $a6*$b6 + $a7*$b5) & 0xFFFF;
+        $r[13] = ($v = (($v / 0x10000) | 0) + $a6*$b7 + $a7*$b6) & 0xFFFF;
+        $r[14] = ($v = (($v / 0x10000) | 0) + $a7*$b7) & 0xFFFF;
+        $r[15] = (($v / 0x10000) | 0);
         return r;
     }
 
-    function c255lmulmodp (r, a, b) {
+    function c255lmulmodp ($r, $a, $b) {
         // Karatsuba multiplication scheme: x*y = (b^2+b)*x1*y1 - b*(x1-x0)*(y1-y0) + (b+1)*x0*y0
-        var x = c255lmul8h(a[15], a[14], a[13], a[12], a[11], a[10], a[9], a[8], b[15], b[14], b[13], b[12], b[11], b[10], b[9], b[8]);
-        var z = c255lmul8h(a[7], a[6], a[5], a[4], a[3], a[2], a[1], a[0], b[7], b[6], b[5], b[4], b[3], b[2], b[1], b[0]);
-        var y = c255lmul8h(a[15] + a[7], a[14] + a[6], a[13] + a[5], a[12] + a[4], a[11] + a[3], a[10] + a[2], a[9] + a[1], a[8] + a[0],
-            b[15] + b[7], b[14] + b[6], b[13] + b[5], b[12] + b[4], b[11] + b[3], b[10] + b[2], b[9] + b[1], b[8] + b[0]);
+        $x = c255lmul8h($a[15], $a[14], $a[13], $a[12], $a[11], $a[10], $a[9], $a[8], $b[15], $b[14], $b[13], $b[12], $b[11], $b[10], $b[9], $b[8]);
+        $z = c255lmul8h($a[7], $a[6], $a[5], $a[4], $a[3], $a[2], $a[1], $a[0], $b[7], $b[6], $b[5], $b[4], $b[3], $b[2], $b[1], $b[0]);
+        $y = c255lmul8h($a[15] + $a[7], $a[14] + $a[6], $a[13] + $a[5], $a[12] + $a[4], $a[11] + $a[3], $a[10] + $a[2], $a[9] + $a[1], $a[8] + $a[0],
+            $b[15] + $b[7], $b[14] + $b[6], $b[13] + $b[5], $b[12] + $b[4], $b[11] + $b[3], $b[10] + $b[2], $b[9] + $b[1], $b[8] + $b[0]);
 
-        var v;
-        r[0] = (v = 0x800000 + z[0] + (y[8] -x[8] -z[8] + x[0] -0x80) * 38) & 0xFFFF;
-        r[1] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[1] + (y[9] -x[9] -z[9] + x[1]) * 38) & 0xFFFF;
-        r[2] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[2] + (y[10] -x[10] -z[10] + x[2]) * 38) & 0xFFFF;
-        r[3] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[3] + (y[11] -x[11] -z[11] + x[3]) * 38) & 0xFFFF;
-        r[4] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[4] + (y[12] -x[12] -z[12] + x[4]) * 38) & 0xFFFF;
-        r[5] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[5] + (y[13] -x[13] -z[13] + x[5]) * 38) & 0xFFFF;
-        r[6] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[6] + (y[14] -x[14] -z[14] + x[6]) * 38) & 0xFFFF;
-        r[7] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[7] + (y[15] -x[15] -z[15] + x[7]) * 38) & 0xFFFF;
-        r[8] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[8] + y[0] -x[0] -z[0] + x[8] * 38) & 0xFFFF;
-        r[9] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[9] + y[1] -x[1] -z[1] + x[9] * 38) & 0xFFFF;
-        r[10] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[10] + y[2] -x[2] -z[2] + x[10] * 38) & 0xFFFF;
-        r[11] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[11] + y[3] -x[3] -z[3] + x[11] * 38) & 0xFFFF;
-        r[12] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[12] + y[4] -x[4] -z[4] + x[12] * 38) & 0xFFFF;
-        r[13] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[13] + y[5] -x[5] -z[5] + x[13] * 38) & 0xFFFF;
-        r[14] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[14] + y[6] -x[6] -z[6] + x[14] * 38) & 0xFFFF;
-        var r15 = 0x7fff80 + ((v / 0x10000) | 0) + z[15] + y[7] -x[7] -z[7] + x[15] * 38;
-        c255lreduce(r, r15);
+        $v;
+        $r[0] = ($v = 0x800000 + $z[0] + ($y[8] -$x[8] -$z[8] + $x[0] -0x80) * 38) & 0xFFFF;
+        $r[1] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[1] + ($y[9] -$x[9] -$z[9] + $x[1]) * 38) & 0xFFFF;
+        $r[2] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[2] + ($y[10] -$x[10] -$z[10] + $x[2]) * 38) & 0xFFFF;
+        $r[3] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[3] + ($y[11] -$x[11] -$z[11] + $x[3]) * 38) & 0xFFFF;
+        $r[4] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[4] + ($y[12] -$x[12] -$z[12] + $x[4]) * 38) & 0xFFFF;
+        $r[5] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[5] + ($y[13] -$x[13] -$z[13] + $x[5]) * 38) & 0xFFFF;
+        $r[6] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[6] + ($y[14] -$x[14] -$z[14] + $x[6]) * 38) & 0xFFFF;
+        $r[7] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[7] + ($y[15] -$x[15] -$z[15] + $x[7]) * 38) & 0xFFFF;
+        $r[8] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[8] + $y[0] -$x[0] -$z[0] + $x[8] * 38) & 0xFFFF;
+        $r[9] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[9] + $y[1] -$x[1] -$z[1] + $x[9] * 38) & 0xFFFF;
+        $r[10] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[10] + $y[2] -$x[2] -$z[2] + $x[10] * 38) & 0xFFFF;
+        $r[11] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[11] + $y[3] -$x[3] -$z[3] + $x[11] * 38) & 0xFFFF;
+        $r[12] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[12] + $y[4] -$x[4] -$z[4] + $x[12] * 38) & 0xFFFF;
+        $r[13] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[13] + $y[5] -$x[5] -$z[5] + $x[13] * 38) & 0xFFFF;
+        $r[14] = ($v = 0x7fff80 + (($v / 0x10000) | 0) + $z[14] + $y[6] -$x[6] -$z[6] + $x[14] * 38) & 0xFFFF;
+        $r15 = 0x7fff80 + (($v / 0x10000) | 0) + $z[15] + $y[7] -$x[7] -$z[7] + $x[15] * 38;
+        c255lreduce($r, $r15);
     }
 
-    function c255lreduce (a, a15) {
-        var v = a15;
-        a[15] = v & 0x7FFF;
-        v = ((v / 0x8000) | 0) * 19;
-        for (var i = 0; i <= 14; ++i) {
-            a[i] = (v += a[i]) & 0xFFFF;
-            v = ((v / 0x10000) | 0);
+    function c255lreduce ($a, $a15) {
+        $v = $a15;
+        $a[15] = $v & 0x7FFF;
+        $v = (($v / 0x8000) | 0) * 19;
+        for ($i = 0; $i <= 14; ++$i) {
+            $a[$i] = ($v += $a[$i]) & 0xFFFF;
+            $v = (($v / 0x10000) | 0);
         }
 
-        a[15] += v;
+        $a[15] += $v;
     }
 
-    function c255laddmodp (r, a, b) {
-        var v;
-        r[0] = (v = (((a[15] / 0x8000) | 0) + ((b[15] / 0x8000) | 0)) * 19 + a[0] + b[0]) & 0xFFFF;
-        for (var i = 1; i <= 14; ++i)
-            r[i] = (v = ((v / 0x10000) | 0) + a[i] + b[i]) & 0xFFFF;
+    function c255laddmodp ($r, $a, $b) {
+        $v;
+        $r[0] = ($v = ((($a[15] / 0x8000) | 0) + (($b[15] / 0x8000) | 0)) * 19 + $a[0] + $b[0]) & 0xFFFF;
+        for ($i = 1; $i <= 14; ++$i)
+            $r[$i] = ($v = (($v / 0x10000) | 0) + $a[$i] + $b[$i]) & 0xFFFF;
 
-        r[15] = ((v / 0x10000) | 0) + (a[15] & 0x7FFF) + (b[15] & 0x7FFF);
+        $r[15] = (($v / 0x10000) | 0) + ($a[15] & 0x7FFF) + ($b[15] & 0x7FFF);
     }
 
-    function c255lsubmodp (r, a, b) {
-        var v;
-        r[0] = (v = 0x80000 + (((a[15] / 0x8000) | 0) - ((b[15] / 0x8000) | 0) - 1) * 19 + a[0] - b[0]) & 0xFFFF;
-        for (var i = 1; i <= 14; ++i)
-            r[i] = (v = ((v / 0x10000) | 0) + 0x7fff8 + a[i] - b[i]) & 0xFFFF;
+    function c255lsubmodp ($r, $a, $b) {
+        $v;
+        $r[0] = ($v = 0x80000 + ((($a[15] / 0x8000) | 0) - (($b[15] / 0x8000) | 0) - 1) * 19 + $a[0] - $b[0]) & 0xFFFF;
+        for ($i = 1; $i <= 14; ++$i)
+            $r[$i] = ($v = (($v / 0x10000) | 0) + 0x7fff8 + $a[$i] - $b[$i]) & 0xFFFF;
 
-        r[15] = ((v / 0x10000) | 0) + 0x7ff8 + (a[15] & 0x7FFF) - (b[15] & 0x7FFF);
+        $r[15] = (($v / 0x10000) | 0) + 0x7ff8 + ($a[15] & 0x7FFF) - ($b[15] & 0x7FFF);
     }
 
-    function c255lmulasmall (r, a, m) {
-        var v;
-        r[0] = (v = a[0] * m) & 0xFFFF;
-        for (var i = 1; i <= 14; ++i)
-            r[i] = (v = ((v / 0x10000) | 0) + a[i]*m) & 0xFFFF;
+    function c255lmulasmall ($r, $a, $m) {
+        $v;
+        $r[0] = ($v = $a[0] * $m) & 0xFFFF;
+        for ($i = 1; $i <= 14; ++$i)
+            $r[i] = ($v = (($v / 0x10000) | 0) + $a[$i]*$m) & 0xFFFF;
 
-        var r15 = ((v / 0x10000) | 0) + a[15]*m;
-        c255lreduce(r, r15);
+        $r15 = (($v / 0x10000) | 0) + $a[15]*$m;
+        c255lreduce($r, $r15);
     }
 
     //endregion
@@ -736,9 +736,9 @@ class curve25519 {
 
     /* t1 = ax + az
      * t2 = ax - az  */
-    function mont_prep (t1, t2, ax, az) {
-        add(t1, ax, az);
-        sub(t2, ax, az);
+    function mont_prep ($t1, $t2, $ax, $az) {
+        add($t1, $ax, $az);
+        sub($t2, $ax, $az);
     }
 
     /* A = P + Q   where
@@ -747,42 +747,42 @@ class curve25519 {
      *  X(Q) = (t3+t4)/(t3-t4)
      *  X(P-Q) = dx
      * clobbers t1 and t2, preserves t3 and t4  */
-    function mont_add (t1, t2, t3, t4, ax, az, dx) {
-        mul(ax, t2, t3);
-        mul(az, t1, t4);
-        add(t1, ax, az);
-        sub(t2, ax, az);
-        sqr(ax, t1);
-        sqr(t1, t2);
-        mul(az, t1, dx);
+    function mont_add ($t1, $t2, $t3, $t4, $ax, $az, $dx) {
+        mul($ax, $t2, $t3);
+        mul($az, $t1, $t4);
+        add($t1, $ax, $az);
+        sub($t2, $ax, $az);
+        sqr($ax, $t1);
+        sqr($t1, $t2);
+        mul($az, $t1, $dx);
     }
 
     /* B = 2 * Q   where
      *  X(B) = bx/bz
      *  X(Q) = (t3+t4)/(t3-t4)
      * clobbers t1 and t2, preserves t3 and t4  */
-    function mont_dbl (t1, t2, t3, t4, bx, bz) {
-        sqr(t1, t3);
-        sqr(t2, t4);
-        mul(bx, t1, t2);
-        sub(t2, t1, t2);
-        mul_small(bz, t2, 121665);
-        add(t1, t1, bz);
-        mul(bz, t1, t2);
+    function mont_dbl ($t1, $t2, $t3, $t4, $bx, $bz) {
+        sqr($t1, $t3);
+        sqr($t2, $t4);
+        mul($bx, $t1, $t2);
+        sub($t2, $t1, $t2);
+        mul_small($bz, $t2, 121665);
+        add($t1, $t1, $bz);
+        mul($bz, $t1, $t2);
     }
 
     /* Y^2 = X^3 + 486662 X^2 + X
      * t is a temporary  */
-    function x_to_y2 (t, y2, x) {
-        sqr(t, x);
-        mul_small(y2, x, 486662);
-        add(t, t, y2);
-        add(t, t, C1);
-        mul(y2, t, x);
+    function x_to_y2 ($t, $y2, $x) {
+        sqr($t, $x);
+        mul_small($y2, $x, 486662);
+        add($t, $t, $y2);
+        add($t, $t, $C1);
+        mul($y2, $t, $x);
     }
 
     /* P = kG   and  s = sign(P)/k  */
-    function core (Px, s, k, Gx) {
+    function core ($Px, $s, $k, $Gx) {
         var dx = createUnpackedArray();
         var t1 = createUnpackedArray();
         var t2 = createUnpackedArray();
