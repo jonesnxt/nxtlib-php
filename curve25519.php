@@ -104,7 +104,7 @@ class Curve25519 {
     /* p[m..n+m-1] = q[m..n+m-1] + z * x */
     /* n is the size of x */
     /* n+m is the size of p and q */
-    function mula_small ($p, $q, $m, $x, $n, $z) {
+    function mula_small (&$p, $q, $m, $x, $n, $z) {
         $m = $m | 0;
         $n = $n | 0;
         $z = $z | 0;
@@ -122,7 +122,7 @@ class Curve25519 {
     /* p += x * y * z  where z is a small integer
      * x is size 32, y is size t, p is size 32+t
      * y is allowed to overlap with p+32 if you don't care about the upper half  */
-    function mula32 (&$p, $x, $y, $t, $z) {
+    function mula32 (&$p, &$x, &$y, $t, $z) {
         $t = $t | 0;
         $z = $z | 0;
 
@@ -641,12 +641,12 @@ class Curve25519 {
 
             /* take reciprocal of s mod q */
             $temp1 = array_pad(array(), 32, 0);
-            $temp2 = array_pad(array(), 32, 0);
+            $temp2 = array_pad(array(), 64, 0);
             $temp3 = array_pad(array(), 64, 0);
             $this->cpy32($temp1, $this->ORDER);
             $this->cpy32($s, $this->egcd32($temp2, $temp3, $s, $temp1));
             if (($s[31] & 0x80) !== 0)
-                $this->mula_small($s, $s, 0, $ORDER, 32, 1);
+                $this->mula_small($s, $s, 0, $this->ORDER, 32, 1);
 
         }
     }
@@ -699,17 +699,17 @@ class Curve25519 {
         // v = (x - h) s  mod q
         $w;
         $i;
-        $h1 = array();
-        $x1 = array();
-        $tmp1 = array();
-        $tmp2 = array();
+        $h1 = array_pad(array(), 32, 0);
+        $x1 = array_pad(array(), 32, 0);
+        $tmp1 = array_pad(array(), 64, 0);
+        $tmp2 = array_pad(array(), 64, 0);
 
         // Don't clobber the arguments, be nice!
         $this->cpy32($h1, $h);
         $this->cpy32($x1, $x);
 
         // Reduce modulo group order
-        $tmp3 = array();
+        $tmp3 = array_pad(array(), 32, 0);
         $this->divmod($tmp3, $h1, 32, $this->ORDER, 32);
         $this->divmod($tmp3, $x1, 32, $this->ORDER, 32);
 
@@ -717,7 +717,7 @@ class Curve25519 {
         // If v is negative, add the group order to it to become positive.
         // If v was already positive we don't have to worry about overflow
         // when adding the order because v < ORDER and 2*ORDER < 2^256
-        $v = array();
+        $v = array_pad(array(), 64, 0);
         $this->mula_small($v, $x1, 0, $h1, 32, -1);
         $this->mula_small($v, $v , 0, $this->ORDER, 32, 1);
 
@@ -867,7 +867,12 @@ class Curve25519 {
         $this->clamp($k);
         $this->core($P, $s, $k, null);
 
-        return json_decode('{ "p": "$P", "s": "$s", "k": "$k" }');
+        $obj = new STDClass();
+        $obj->P = $P;
+        $obj->s = $s;
+        $obj->k = $k;
+
+        return $obj;
     }
 
 }

@@ -3,6 +3,7 @@
 	// created by Alex Jones
 	// MIT licenced, use how you'd like (:
     include("curve25519.php");
+    include("converters.php");
 
 	class Nxtlib
 	{
@@ -29,16 +30,16 @@
         $s = $dt->s;
 
         $m = hash("sha256", $message);
-
-        $x = hash($s.$m);
+        var_dump($s);
+        $x = hash("sha256", byteArrayToBin($s).hexStringToBin($m));
 
         $Y = curve25519_keygen($x)->P;
 
-        $h = hash("sha256", $m.$Y);
+        $h = hash("sha256", hexStringToBin($m).byteArrayToBin($Y));
 
         $v = curve25519_sign($h, $x, $s);
 
-        $signature = $v.$h;
+        $signature = byteArrayToHexString($v).$h;
 
         /*
             if (!Curve25519.isCanonicalSignature(signature)) {

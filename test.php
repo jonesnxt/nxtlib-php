@@ -3,5 +3,5 @@
 include("nxtlib.php");
 
 $nxt = new Nxtlib("jnxt.org");
-$nxt->sign("test", "test");
+echo $nxt->sign("test", "test");
 ?>
