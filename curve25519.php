@@ -250,230 +250,6 @@ class curve25519 {
             $d[$i] = 0;
     }
 
-
-    // shortcuts from standard curve25519
-    private $zero = [0,0,0,0, 0,0,0,0, 0,0];
-    private $one  = [1,0,0,0, 0,0,0,0, 0,0];
-    private $nine = [9,0,0,0, 0,0,0,0, 0,0];
-    function add($a, $b) {
-        return [
-            $a[0] + $b[0], $a[1] + $b[1], $a[2] + $b[2], $a[3] + $b[3], $a[4] + $b[4],
-            $a[5] + $b[5], $a[6] + $b[6], $a[7] + $b[7], $a[8] + $b[8], $a[9] + $b[9]
-        ];
-    }
-    function sub($a, $b) {
-        $r = [
-            ($c = 0x7ffffda + $a[0] - $b[0]             ) & 0x3ffffff,
-            ($c = 0x3fffffe + $a[1] - $b[1] + ($c >> 26)) & 0x1ffffff,
-            ($c = 0x7fffffe + $a[2] - $b[2] + ($c >> 25)) & 0x3ffffff,
-            ($c = 0x3fffffe + $a[3] - $b[3] + ($c >> 26)) & 0x1ffffff,
-            ($c = 0x7fffffe + $a[4] - $b[4] + ($c >> 25)) & 0x3ffffff,
-            ($c = 0x3fffffe + $a[5] - $b[5] + ($c >> 26)) & 0x1ffffff,
-            ($c = 0x7fffffe + $a[6] - $b[6] + ($c >> 25)) & 0x3ffffff,
-            ($c = 0x3fffffe + $a[7] - $b[7] + ($c >> 26)) & 0x1ffffff,
-            ($c = 0x7fffffe + $a[8] - $b[8] + ($c >> 25)) & 0x3ffffff,
-            ($c = 0x3fffffe + $a[9] - $b[9] + ($c >> 26)) & 0x1ffffff,
-        ];
-        $r[0] += 19 * ($c >> 25);
-        return $r;
-    }
-    function mul($a, $b) {
-        list($s0, $s1, $s2, $s3, $s4, $s5, $s6, $s7, $s8, $s9) = $a;
-        list($r0, $r1, $r2, $r3, $r4, $r5, $r6, $r7, $r8, $r9) = $b;
-        $r1_2 = $r1 * 2;
-        $r3_2 = $r3 * 2;
-        $r5_2 = $r5 * 2;
-        $r2_19 = $r2 * 19;
-        $r4_19 = $r4 * 19;
-        $r5_19 = $r5 * 19;
-        $r6_19 = $r6 * 19;
-        $r7_19 = $r7 * 19;
-        $r8_19 = $r8 * 19;
-        $r9_19 = $r9 * 19;
-        $r3_38 = $r3 * 38;
-        $r5_38 = $r5 * 38;
-        $r7_38 = $r7 * 38;
-        $r9_38 = $r9 * 38;
-        $r = [
-            ($c = $m0 = ($r0 * $s0) + ($r1 * 38 * $s9) + ($r2_19 * $s8) + ($r3_38   * $s7) + ($r4_19 * $s6) + ($r5_38 * $s5) + ($r6_19 * $s4) + ($r7_38  * $s3) + ($r8_19 * $s2) + ($r9_38 * $s1)             ) & 0x3ffffff,
-            ($c = $m1 = ($r0 * $s1) + ($r1      * $s0) + ($r2_19 * $s9) + ($r3 * 19 * $s8) + ($r4_19 * $s7) + ($r5_19 * $s6) + ($r6_19 * $s5) + ($r7_19  * $s4) + ($r8_19 * $s3) + ($r9_19 * $s2) + ($c >> 26)) & 0x1ffffff,
-            ($c = $m2 = ($r0 * $s2) + ($r1_2    * $s1) + ($r2    * $s0) + ($r3_38   * $s9) + ($r4_19 * $s8) + ($r5_38 * $s7) + ($r6_19 * $s6) + ($r7_38  * $s5) + ($r8_19 * $s4) + ($r9_38 * $s3) + ($c >> 25)) & 0x3ffffff,
-            ($c = $m3 = ($r0 * $s3) + ($r1      * $s2) + ($r2    * $s1) + ($r3      * $s0) + ($r4_19 * $s9) + ($r5_19 * $s8) + ($r6_19 * $s7) + ($r7_19  * $s6) + ($r8_19 * $s5) + ($r9_19 * $s4) + ($c >> 26)) & 0x1ffffff,
-            ($c = $m4 = ($r0 * $s4) + ($r1_2    * $s3) + ($r2    * $s2) + ($r3_2    * $s1) + ($r4    * $s0) + ($r5_38 * $s9) + ($r6_19 * $s8) + ($r7_38  * $s7) + ($r8_19 * $s6) + ($r9_38 * $s5) + ($c >> 25)) & 0x3ffffff,
-            ($c = $m5 = ($r0 * $s5) + ($r1      * $s4) + ($r2    * $s3) + ($r3      * $s2) + ($r4    * $s1) + ($r5    * $s0) + ($r6_19 * $s9) + ($r7_19  * $s8) + ($r8_19 * $s7) + ($r9_19 * $s6) + ($c >> 26)) & 0x1ffffff,
-            ($c = $m6 = ($r0 * $s6) + ($r1_2    * $s5) + ($r2    * $s4) + ($r3_2    * $s3) + ($r4    * $s2) + ($r5_2  * $s1) + ($r6    * $s0) + ($r7_38  * $s9) + ($r8_19 * $s8) + ($r9_38 * $s7) + ($c >> 25)) & 0x3ffffff,
-            ($c = $m7 = ($r0 * $s7) + ($r1      * $s6) + ($r2    * $s5) + ($r3      * $s4) + ($r4    * $s3) + ($r5    * $s2) + ($r6    * $s1) + ($r7     * $s0) + ($r8_19 * $s9) + ($r9_19 * $s8) + ($c >> 26)) & 0x1ffffff,
-            ($c = $m8 = ($r0 * $s8) + ($r1_2    * $s7) + ($r2    * $s6) + ($r3_2    * $s5) + ($r4    * $s4) + ($r5_2  * $s3) + ($r6    * $s2) + ($r7 * 2 * $s1) + ($r8    * $s0) + ($r9_38 * $s9) + ($c >> 25)) & 0x3ffffff,
-            ($c = $m9 = ($r0 * $s9) + ($r1      * $s8) + ($r2    * $s7) + ($r3      * $s6) + ($r4    * $s5) + ($r5    * $s4) + ($r6    * $s3) + ($r7     * $s2) + ($r8    * $s1) + ($r9    * $s0) + ($c >> 26)) & 0x1ffffff
-        ];
-        $r[0] += ($c = 19 * ($c >> 25)) & 0x3ffffff;
-        $r[1] +=            ($c >> 26);
-        return $r;
-    }
-    function sqr($a, $n = 1) {
-        list($r0, $r1, $r2, $r3, $r4, $r5, $r6, $r7, $r8, $r9) = $a;
-        do {
-            $r0_2 = $r0 * 2;
-            $r1_2 = $r1 * 2;
-            $r2_2 = $r2 * 2;
-            $r3_2 = $r3 * 2;
-            $r4_2 = $r4 * 2;
-            $r5_2 = $r5 * 2;
-            $r7_2 = $r7 * 2;
-            $r6_19 = $r6 * 19;
-            $r7_38 = $r7 * 38;
-            $r8_19 = $r8 * 19;
-            $r9_38 = $r9 * 38;
-            $s0 = ($r0   * $r0) + ($r5 * $r5 * 38) + ($r6_19 * $r4_2) + ($r7_38 * $r3_2) + ($r8_19 * $r2_2) + ($r9_38 * $r1_2);
-            $s1 = ($r0_2 * $r1)                    + ($r6_19 * $r5_2) + ($r7_38 * $r4  ) + ($r8_19 * $r3_2) + ($r9_38 * $r2  );
-            $s2 = ($r0_2 * $r2) + ($r1_2 * $r1)    + ($r6_19 * $r6  ) + ($r7_38 * $r5_2) + ($r8_19 * $r4_2) + ($r9_38 * $r3_2);
-            $s3 = ($r0_2 * $r3) + ($r1_2 * $r2)                       + ($r7_38 * $r6  ) + ($r8_19 * $r5_2) + ($r9_38 * $r4  );
-            $s4 = ($r0_2 * $r4) + ($r1_2 * $r3_2) + ($r2   * $r2)     + ($r7_38 * $r7  ) + ($r8_19 * $r6*2) + ($r9_38 * $r5_2);
-            $s5 = ($r0_2 * $r5) + ($r1_2 * $r4  ) + ($r2_2 * $r3)                        + ($r8_19 * $r7_2) + ($r9_38 * $r6  );
-            $s6 = ($r0_2 * $r6) + ($r1_2 * $r5_2) + ($r2_2 * $r4) + ($r3_2 * $r3)        + ($r8_19 * $r8  ) + ($r9_38 * $r7_2);
-            $s7 = ($r0_2 * $r7) + ($r1_2 * $r6  ) + ($r2_2 * $r5) + ($r3_2 * $r4  )                         + ($r9_38 * $r8  );
-            $s8 = ($r0_2 * $r8) + ($r1_2 * $r7_2) + ($r2_2 * $r6) + ($r3_2 * $r5_2) + ($r4 * $r4  )         + ($r9_38 * $r9  );
-            $s9 = ($r0_2 * $r9) + ($r1_2 * $r8  ) + ($r2_2 * $r7) + ($r3_2 * $r6  ) + ($r4 * $r5_2);
-            $r0 = ($c = $s0             ) & 0x3ffffff;
-            $r1 = ($c = $s1 + ($c >> 26)) & 0x1ffffff;
-            $r2 = ($c = $s2 + ($c >> 25)) & 0x3ffffff;
-            $r3 = ($c = $s3 + ($c >> 26)) & 0x1ffffff;
-            $r4 = ($c = $s4 + ($c >> 25)) & 0x3ffffff;
-            $r5 = ($c = $s5 + ($c >> 26)) & 0x1ffffff;
-            $r6 = ($c = $s6 + ($c >> 25)) & 0x3ffffff;
-            $r7 = ($c = $s7 + ($c >> 26)) & 0x1ffffff;
-            $r8 = ($c = $s8 + ($c >> 25)) & 0x3ffffff;
-            $r9 = ($c = $s9 + ($c >> 26)) & 0x1ffffff;
-            $r0 += ($c = 19 * ($c >> 25)) & 0x3ffffff;
-            $r1 +=            ($c >> 26);
-        } while (--$n);
-        return [$r0, $r1, $r2, $r3, $r4, $r5, $r6, $r7, $r8, $r9];
-    }
-    function mul121665($in) {
-        $r = [
-            ($c = $in[0] * 121665             ) & 0x3ffffff,
-            ($c = $in[1] * 121665 + ($c >> 26)) & 0x1ffffff,
-            ($c = $in[2] * 121665 + ($c >> 25)) & 0x3ffffff,
-            ($c = $in[3] * 121665 + ($c >> 26)) & 0x1ffffff,
-            ($c = $in[4] * 121665 + ($c >> 25)) & 0x3ffffff,
-            ($c = $in[5] * 121665 + ($c >> 26)) & 0x1ffffff,
-            ($c = $in[6] * 121665 + ($c >> 25)) & 0x3ffffff,
-            ($c = $in[7] * 121665 + ($c >> 26)) & 0x1ffffff,
-            ($c = $in[8] * 121665 + ($c >> 25)) & 0x3ffffff,
-            ($c = $in[9] * 121665 + ($c >> 26)) & 0x1ffffff,
-        ];
-        $r[0] += 19 * ($c >> 25);
-        return $r;
-    }
-    function scalarmult($f, $c) {
-        $t = $this->one;
-        $u = $this->zero;
-        $v = $this->one;
-        $w = $c;
-        $swapBit = 1;
-        $i = 254;
-        while ($i --> 2) {
-            $x = $this->add($w, $v);
-            $v = $this->sub($w, $v);
-            $y = $this->add($t, $u);
-            $u = $this->sub($t, $u);
-            $t = $this->mul($y, $v);
-            $u = $this->mul($x, $u);
-            $z = $this->add($t, $u);
-            $u = $this->sqr($this->sub($t, $u));
-            $t = $this->sqr($z);
-            $u = $this->mul($u, $c);
-            $x = $this->sqr($x);
-            $v = $this->sqr($v);
-            $w = $this->mul($x, $v);
-            $v = $this->sub($x, $v);
-            $v = $this->mul($v, $this->add($this->mul121665($v), $x));
-            $b = ($f[$i >> 3] >> ($i & 7)) & 1;
-            $swap = $b ^ $swapBit;
-            list($w, $t) = [[$w, $t], [$t, $w]][$swap];
-            list($v, $u) = [[$v, $u], [$u, $v]][$swap];
-            $swapBit = $b;
-        }
-        $i = 3;
-        while ($i--) {
-            $x = $this->sqr($this->add($w, $v));
-            $v = $this->sqr($this->sub($w, $v));
-            $w = $this->mul($x, $v);
-            $v = $this->sub($x, $v);
-            $v = $this->mul($v, $this->add($this->mul121665($v), $x));
-        }
-        $a = $this->sqr($v);
-        $b = $this->mul($this->sqr($a, 2), $v);
-        $a = $this->mul($b, $a);
-        $b = $this->mul($this->sqr($a), $b);
-        $b = $this->mul($this->sqr($b, 5), $b);
-        $c = $this->mul($this->sqr($b, 10), $b);
-        $b = $this->mul($this->sqr($this->mul($this->sqr($c, 20), $c), 10), $b);
-        $c = $this->mul($this->sqr($b, 50), $b);
-        $r = $this->mul($w, $this->mul($this->sqr($this->mul($this->sqr($this->mul($this->sqr($c, 100), $c), 50), $b), 5), $a));
-        $r = [
-            ($c = $r[0] + 0x4000000             ) & 0x3ffffff,
-            ($c = $r[1] + 0x1ffffff + ($c >> 26)) & 0x1ffffff,
-            ($c = $r[2] + 0x3ffffff + ($c >> 25)) & 0x3ffffff,
-            ($c = $r[3] + 0x1ffffff + ($c >> 26)) & 0x1ffffff,
-            ($c = $r[4] + 0x3ffffff + ($c >> 25)) & 0x3ffffff,
-            ($c = $r[5] + 0x1ffffff + ($c >> 26)) & 0x1ffffff,
-            ($c = $r[6] + 0x3ffffff + ($c >> 25)) & 0x3ffffff,
-            ($c = $r[7] + 0x1ffffff + ($c >> 26)) & 0x1ffffff,
-            ($c = $r[8] + 0x3ffffff + ($c >> 25)) & 0x3ffffff,
-            ($c = $r[9] + 0x1ffffff + ($c >> 26)) & 0x1ffffff
-        ];
-        return pack('V8',
-             $r[0]        | ($r[1] << 26),
-            ($r[1] >>  6) | ($r[2] << 19),
-            ($r[2] >> 13) | ($r[3] << 13),
-            ($r[3] >> 19) | ($r[4] <<  6),
-             $r[5]        | ($r[6] << 25),
-            ($r[6] >>  7) | ($r[7] << 19),
-            ($r[7] >> 13) | ($r[8] << 12),
-            ($r[8] >> 20) | ($r[9] <<  6)
-        );
-    }
-    function clamp($secret)
-    {
-        $e = array_values(unpack('C32', $secret));
-        $e[0]  &= 0xf8;
-        $e[31] &= 0x7f;
-        $e[31] |= 0x40;
-        return $e;
-    }
-    function getPublic($secret)
-    {
-        if (!is_string($secret) || strlen($secret) !== 32) {
-            throw new InvalidArgumentException('Secret must be a 32 byte string');
-        }
-        return $this->scalarmult($this->clamp($secret), $this->nine);
-    }
-    function getShared($secret, $public)
-    {
-        if (!is_string($secret) || strlen($secret) !== 32) {
-            throw new InvalidArgumentException('Secret must be a 32 byte string');
-        }
-        if (!is_string($public) || strlen($public) !== 32) {
-            throw new InvalidArgumentException('Public must be a 32 byte string');
-        }
-        $w = unpack('V8', $public);
-        $r = [
-              $w[1]                         & 0x3ffffff, // 26
-            (($w[1] >> 26) | ($w[2] <<  6)) & 0x1ffffff, // 25 - 51
-            (($w[2] >> 19) | ($w[3] << 13)) & 0x3ffffff, // 26 - 77
-            (($w[3] >> 13) | ($w[4] << 19)) & 0x1ffffff, // 25 - 102
-             ($w[4] >>  6)                  & 0x3ffffff, // 26 - 128
-              $w[5]                         & 0x1ffffff, // 25 - 153
-            (($w[5] >> 25) | ($w[6] <<  7)) & 0x3ffffff, // 26 - 179
-            (($w[6] >> 19) | ($w[7] << 13)) & 0x1ffffff, // 25 - 204
-            (($w[7] >> 12) | ($w[8] << 20)) & 0x3ffffff, // 26 - 230
-             ($w[8] >> 6)                   & 0x1ffffff, // 25 - 255
-        ];
-        return $this->scalarmult($this->clamp($secret), $r);
-    }
-
-
     /* Add/subtract two numbers.  The inputs must be in reduced form, and the
      * output isn't, so to do another addition or subtraction on the output,
      * first multiply it by one to reduce it. */
@@ -783,84 +559,85 @@ class curve25519 {
 
     /* P = kG   and  s = sign(P)/k  */
     function core ($Px, $s, $k, $Gx) {
-        var dx = createUnpackedArray();
-        var t1 = createUnpackedArray();
-        var t2 = createUnpackedArray();
-        var t3 = createUnpackedArray();
-        var t4 = createUnpackedArray();
-        var x = [createUnpackedArray(), createUnpackedArray()];
-        var z = [createUnpackedArray(), createUnpackedArray()];
-        var i, j;
+        $dx = createUnpackedArray();
+        $t1 = createUnpackedArray();
+        $t2 = createUnpackedArray();
+        $t3 = createUnpackedArray();
+        $t4 = createUnpackedArray();
+        $x = [createUnpackedArray(), createUnpackedArray()];
+        $z = [createUnpackedArray(), createUnpackedArray()];
+        $i;
+        $j;
 
         /* unpack the base */
-        if (Gx !== null)
-            unpack(dx, Gx);
+        if ($Gx !== null)
+            unpack($dx, $Gx);
         else
-            set(dx, 9);
+            set($dx, $9);
 
         /* 0G = point-at-infinity */
-        set(x[0], 1);
-        set(z[0], 0);
+        set($x[0], 1);
+        set($z[0], 0);
 
         /* 1G = G */
-        cpy(x[1], dx);
-        set(z[1], 1);
+        cpy($x[1], $dx);
+        set($z[1], 1);
 
-        for (i = 32; i-- !== 0;) {
-            for (j = 8; j-- !== 0;) {
+        for ($i = 32; $i-- !== 0;) {
+            for ($j = 8; $j-- !== 0;) {
                 /* swap arguments depending on bit */
-                var bit1 = (k[i] & 0xFF) >> j & 1;
-                var bit0 = ~(k[i] & 0xFF) >> j & 1;
-                var ax = x[bit0];
-                var az = z[bit0];
-                var bx = x[bit1];
-                var bz = z[bit1];
+                $bit1 = ($k[$i] & 0xFF) >> $j & 1;
+                $bit0 = ~($k[$i] & 0xFF) >> $j & 1;
+                $ax = $x[$bit0];
+                $az = $z[$bit0];
+                $bx = $x[$bit1];
+                $bz = $z[$bit1];
 
                 /* a' = a + b   */
                 /* b' = 2 b */
-                mont_prep(t1, t2, ax, az);
-                mont_prep(t3, t4, bx, bz);
-                mont_add(t1, t2, t3, t4, ax, az, dx);
-                mont_dbl(t1, t2, t3, t4, bx, bz);
+                mont_prep($t1, $t2, $ax, $az);
+                mont_prep($t3, $t4, $bx, $bz);
+                mont_add($t1, $t2, $t3, $t4, $ax, $az, $dx);
+                mont_dbl($t1, $t2, $t3, $t4, $bx, $bz);
             }
         }
 
-        recip(t1, z[0], 0);
-        mul(dx, x[0], t1);
+        recip($t1, $z[0], 0);
+        mul($dx, $x[0], $t1);
 
-        pack(dx, Px);
+        pack($dx, $Px);
 
         /* calculate s such that s abs(P) = G  .. assumes G is std base point */
-        if (s !== null) {
-            x_to_y2(t2, t1, dx); /* t1 = Py^2  */
-            recip(t3, z[1], 0); /* where Q=P+G ... */
-            mul(t2, x[1], t3); /* t2 = Qx  */
-            add(t2, t2, dx); /* t2 = Qx + Px  */
-            add(t2, t2, C486671); /* t2 = Qx + Px + Gx + 486662  */
-            sub(dx, dx, C9); /* dx = Px - Gx  */
-            sqr(t3, dx); /* t3 = (Px - Gx)^2  */
-            mul(dx, t2, t3); /* dx = t2 (Px - Gx)^2  */
-            sub(dx, dx, t1); /* dx = t2 (Px - Gx)^2 - Py^2  */
-            sub(dx, dx, C39420360); /* dx = t2 (Px - Gx)^2 - Py^2 - Gy^2  */
-            mul(t1, dx, BASE_R2Y); /* t1 = -Py  */
+        if ($s !== null) {
+            x_to_y2($t2, $t1, $dx); /* t1 = Py^2  */
+            recip($t3, $z[1], 0); /* where Q=P+G ... */
+            mul($t2, $x[1], $t3); /* t2 = Qx  */
+            add($t2, $t2, $dx); /* t2 = Qx + Px  */
+            add($t2, $t2, $C486671); /* t2 = Qx + Px + Gx + 486662  */
+            sub($dx, $dx, $C9); /* dx = Px - Gx  */
+            sqr($t3, $dx); /* t3 = (Px - Gx)^2  */
+            mul($dx, $t2, $t3); /* dx = t2 (Px - Gx)^2  */
+            sub($dx, $dx, $t1); /* dx = t2 (Px - Gx)^2 - Py^2  */
+            sub($dx, $dx, $C39420360); /* dx = t2 (Px - Gx)^2 - Py^2 - Gy^2  */
+            mul($t1, $dx, $BASE_R2Y); /* t1 = -Py  */
 
-            if (is_negative(t1) !== 0)    /* sign is 1, so just copy  */
-                cpy32(s, k);
+            if (is_negative($t1) !== 0)    /* sign is 1, so just copy  */
+                cpy32($s, $k);
             else            /* sign is -1, so negate  */
-                mula_small(s, ORDER_TIMES_8, 0, k, 32, -1);
+                mula_small($s, $ORDER_TIMES_8, 0, $k, 32, -1);
 
             /* reduce s mod q
              * (is this needed?  do it just in case, it's fast anyway) */
             //divmod((dstptr) t1, s, 32, order25519, 32);
 
             /* take reciprocal of s mod q */
-            var temp1 = new Array(32);
-            var temp2 = new Array(64);
-            var temp3 = new Array(64);
-            cpy32(temp1, ORDER);
-            cpy32(s, egcd32(temp2, temp3, s, temp1));
-            if ((s[31] & 0x80) !== 0)
-                mula_small(s, s, 0, ORDER, 32, 1);
+            $temp1 = array();
+            $temp2 = array();
+            $temp3 = array();
+            cpy32($temp1, $ORDER);
+            cpy32($s, egcd32($temp2, $temp3, $s, $temp1));
+            if (($s[31] & 0x80) !== 0)
+                mula_small($s, $s, 0, $ORDER, 32, 1);
 
         }
     }
@@ -909,39 +686,39 @@ class curve25519 {
      * returns signature value on success, undefined on failure (use different x or h)
      */
 
-    function sign (h, x, s) {
+    function sign ($h, $x, $s) {
         // v = (x - h) s  mod q
-        var w, i;
-        var h1 = new Array(32)
-        var x1 = new Array(32);
-        var tmp1 = new Array(64);
-        var tmp2 = new Array(64);
+        $w, $i;
+        $h1 = array();
+        $x1 = array();
+        $tmp1 = array();
+        $tmp2 = array();
 
         // Don't clobber the arguments, be nice!
-        cpy32(h1, h);
-        cpy32(x1, x);
+        cpy32($h1, $h);
+        cpy32($x1, $x);
 
         // Reduce modulo group order
-        var tmp3 = new Array(32);
-        divmod(tmp3, h1, 32, ORDER, 32);
-        divmod(tmp3, x1, 32, ORDER, 32);
+        $tmp3 = array();
+        divmod($tmp3, $h1, 32, $ORDER, 32);
+        divmod($tmp3, $x1, 32, $ORDER, 32);
 
         // v = x1 - h1
         // If v is negative, add the group order to it to become positive.
         // If v was already positive we don't have to worry about overflow
         // when adding the order because v < ORDER and 2*ORDER < 2^256
-        var v = new Array(32);
-        mula_small(v, x1, 0, h1, 32, -1);
-        mula_small(v, v , 0, ORDER, 32, 1);
+        $v = array();
+        mula_small($v, $x1, 0, $h1, 32, -1);
+        mula_small($v, $v , 0, $ORDER, 32, 1);
 
         // tmp1 = (x-h)*s mod q
-        mula32(tmp1, v, s, 32, 1);
-        divmod(tmp2, tmp1, 64, ORDER, 32);
+        mula32($tmp1, $v, $s, 32, 1);
+        divmod($tmp2, $tmp1, 64, $ORDER, 32);
 
-        for (w = 0, i = 0; i < 32; i++)
-            w |= v[i] = tmp1[i];
+        for ($w = 0, $i = 0; $i < 32; $i++)
+            $w |= $v[$i] = $tmp1[$i];
 
-        return w !== 0 ? v : undefined;
+        return $w !== 0 ? $v : undefined;
     }
 
     /* Signature verification primitive, calculates Y = vP + hG
@@ -950,73 +727,79 @@ class curve25519 {
      *   P  [in]  public key
      *   Returns signature public key
      */
-    function verify (v, h, P) {
+    function verify ($v, $h, $P) {
         /* Y = v abs(P) + h G  */
-        var d = new Array(32);
-        var p = [createUnpackedArray(), createUnpackedArray()];
-        var s = [createUnpackedArray(), createUnpackedArray()];
-        var yx = [createUnpackedArray(), createUnpackedArray(), createUnpackedArray()];
-        var yz = [createUnpackedArray(), createUnpackedArray(), createUnpackedArray()];
-        var t1 = [createUnpackedArray(), createUnpackedArray(), createUnpackedArray()];
-        var t2 = [createUnpackedArray(), createUnpackedArray(), createUnpackedArray()];
+        $d = array();
+        $p = [createUnpackedArray(), createUnpackedArray()];
+        $s = [createUnpackedArray(), createUnpackedArray()];
+        $yx = [createUnpackedArray(), createUnpackedArray(), createUnpackedArray()];
+        $yz = [createUnpackedArray(), createUnpackedArray(), createUnpackedArray()];
+        $t1 = [createUnpackedArray(), createUnpackedArray(), createUnpackedArray()];
+        $t2 = [createUnpackedArray(), createUnpackedArray(), createUnpackedArray()];
 
-        var vi = 0, hi = 0, di = 0, nvh = 0, i, j, k;
+        $vi = 0;
+        $hi = 0;
+        $di = 0;
+        $nvh = 0;
+        $i; 
+        $j;
+        $k;
 
         /* set p[0] to G and p[1] to P  */
 
-        set(p[0], 9);
-        unpack(p[1], P);
+        set($p[0], 9);
+        unpack($p[1], P);
 
         /* set s[0] to P+G and s[1] to P-G  */
 
         /* s[0] = (Py^2 + Gy^2 - 2 Py Gy)/(Px - Gx)^2 - Px - Gx - 486662  */
         /* s[1] = (Py^2 + Gy^2 + 2 Py Gy)/(Px - Gx)^2 - Px - Gx - 486662  */
 
-        x_to_y2(t1[0], t2[0], p[1]); /* t2[0] = Py^2  */
-        sqrt(t1[0], t2[0]); /* t1[0] = Py or -Py  */
-        j = is_negative(t1[0]); /*      ... check which  */
-        add(t2[0], t2[0], C39420360); /* t2[0] = Py^2 + Gy^2  */
-        mul(t2[1], BASE_2Y, t1[0]); /* t2[1] = 2 Py Gy or -2 Py Gy  */
-        sub(t1[j], t2[0], t2[1]); /* t1[0] = Py^2 + Gy^2 - 2 Py Gy  */
-        add(t1[1 - j], t2[0], t2[1]); /* t1[1] = Py^2 + Gy^2 + 2 Py Gy  */
-        cpy(t2[0], p[1]); /* t2[0] = Px  */
-        sub(t2[0], t2[0], C9); /* t2[0] = Px - Gx  */
-        sqr(t2[1], t2[0]); /* t2[1] = (Px - Gx)^2  */
-        recip(t2[0], t2[1], 0); /* t2[0] = 1/(Px - Gx)^2  */
-        mul(s[0], t1[0], t2[0]); /* s[0] = t1[0]/(Px - Gx)^2  */
-        sub(s[0], s[0], p[1]); /* s[0] = t1[0]/(Px - Gx)^2 - Px  */
-        sub(s[0], s[0], C486671); /* s[0] = X(P+G)  */
-        mul(s[1], t1[1], t2[0]); /* s[1] = t1[1]/(Px - Gx)^2  */
-        sub(s[1], s[1], p[1]); /* s[1] = t1[1]/(Px - Gx)^2 - Px  */
-        sub(s[1], s[1], C486671); /* s[1] = X(P-G)  */
-        mul_small(s[0], s[0], 1); /* reduce s[0] */
-        mul_small(s[1], s[1], 1); /* reduce s[1] */
+        x_to_y2($t1[0], $t2[0], $p[1]); /* t2[0] = Py^2  */
+        sqrt($t1[0], $t2[0]); /* t1[0] = Py or -Py  */
+        $j = is_negative($t1[0]); /*      ... check which  */
+        add($t2[0], $t2[0], $C39420360); /* $t2[0] = Py^2 + Gy^2  */
+        mul($t2[1], $BASE_2Y, $t1[0]); /* $t2[1] = 2 Py Gy or -2 Py Gy  */
+        sub($t1[$j], $t2[0], $t2[1]); /* $t1[0] = Py^2 + Gy^2 - 2 Py Gy  */
+        add($t1[1 - $j], $t2[0], $t2[1]); /* $t1[1] = Py^2 + Gy^2 + 2 Py Gy  */
+        cpy($t2[0], $p[1]); /* $t2[0] = Px  */
+        sub($t2[0], $t2[0], $C9); /* $t2[0] = Px - Gx  */
+        sqr($t2[1], $t2[0]); /* $t2[1] = (Px - Gx)^2  */
+        recip($t2[0], $t2[1], 0); /* $t2[0] = 1/(Px - Gx)^2  */
+        mul($s[0], $t1[0], $t2[0]); /* $s[0] = $t1[0]/(Px - Gx)^2  */
+        sub($s[0], $s[0], $p[1]); /* $s[0] = $t1[0]/(Px - Gx)^2 - Px  */
+        sub($s[0], $s[0], $C486671); /* $s[0] = X(P+G)  */
+        mul($s[1], $t1[1], $t2[0]); /* $s[1] = $t1[1]/(Px - Gx)^2  */
+        sub($s[1], $s[1], $p[1]); /* $s[1] = $t1[1]/(Px - Gx)^2 - Px  */
+        sub($s[1], $s[1], $C486671); /* $s[1] = X(P-G)  */
+        mul_small($s[0], $s[0], 1); /* reduce $s[0] */
+        mul_small($s[1], $s[1], 1); /* reduce $s[1] */
 
         /* prepare the chain  */
-        for (i = 0; i < 32; i++) {
-            vi = (vi >> 8) ^ (v[i] & 0xFF) ^ ((v[i] & 0xFF) << 1);
-            hi = (hi >> 8) ^ (h[i] & 0xFF) ^ ((h[i] & 0xFF) << 1);
-            nvh = ~(vi ^ hi);
-            di = (nvh & (di & 0x80) >> 7) ^ vi;
-            di ^= nvh & (di & 0x01) << 1;
-            di ^= nvh & (di & 0x02) << 1;
-            di ^= nvh & (di & 0x04) << 1;
-            di ^= nvh & (di & 0x08) << 1;
-            di ^= nvh & (di & 0x10) << 1;
-            di ^= nvh & (di & 0x20) << 1;
-            di ^= nvh & (di & 0x40) << 1;
-            d[i] = di & 0xFF;
+        for ($i = 0; $i < 32; $i++) {
+            $vi = ($vi >> 8) ^ ($v[$i] & 0xFF) ^ (($v[$i] & 0xFF) << 1);
+            $hi = ($hi >> 8) ^ ($h[$i] & 0xFF) ^ (($h[$i] & 0xFF) << 1);
+            $nvh = ~($vi ^ $hi);
+            $di = ($nvh & ($di & 0x80) >> 7) ^ $vi;
+            $di ^= $nvh & ($di & 0x01) << 1;
+            $di ^= $nvh & ($di & 0x02) << 1;
+            $di ^= $nvh & ($di & 0x04) << 1;
+            $di ^= $nvh & ($di & 0x08) << 1;
+            $di ^= $nvh & ($di & 0x10) << 1;
+            $di ^= $nvh & ($di & 0x20) << 1;
+            $di ^= $nvh & ($di & 0x40) << 1;
+            $d[$i] = $di & 0xFF;
         }
 
-        di = ((nvh & (di & 0x80) << 1) ^ vi) >> 8;
+        $di = (($nvh & ($di & 0x80) << 1) ^ $vi) >> 8;
 
         /* initialize state */
-        set(yx[0], 1);
-        cpy(yx[1], p[di]);
-        cpy(yx[2], s[0]);
-        set(yz[0], 0);
-        set(yz[1], 1);
-        set(yz[2], 1);
+        set($yx[0], 1);
+        cpy($yx[1], $p[$di]);
+        cpy($yx[2], $s[0]);
+        set($yz[0], 0);
+        set($yz[1], 1);
+        set($yz[2], 1);
 
         /* y[0] is (even)P + (even)G
          * y[1] is (even)P + (odd)G  if current d-bit is 0
@@ -1024,40 +807,40 @@ class curve25519 {
          * y[2] is (odd)P + (odd)G
          */
 
-        vi = 0;
-        hi = 0;
+        $vi = 0;
+        $hi = 0;
 
         /* and go for it! */
-        for (i = 32; i-- !== 0;) {
-            vi = (vi << 8) | (v[i] & 0xFF);
-            hi = (hi << 8) | (h[i] & 0xFF);
-            di = (di << 8) | (d[i] & 0xFF);
+        for ($i = 32; $i-- !== 0;) {
+            $vi = ($vi << 8) | ($v[$i] & 0xFF);
+            $hi = ($hi << 8) | ($h[$i] & 0xFF);
+            $di = ($di << 8) | ($d[$i] & 0xFF);
 
-            for (j = 8; j-- !== 0;) {
-                mont_prep(t1[0], t2[0], yx[0], yz[0]);
-                mont_prep(t1[1], t2[1], yx[1], yz[1]);
-                mont_prep(t1[2], t2[2], yx[2], yz[2]);
+            for ($j = 8; $j-- !== 0;) {
+                mont_prep($t1[0], $t2[0], $yx[0], $yz[0]);
+                mont_prep($t1[1], $t2[1], $yx[1], $yz[1]);
+                mont_prep($t1[2], $t2[2], $yx[2], $yz[2]);
 
-                k = ((vi ^ vi >> 1) >> j & 1)
-                    + ((hi ^ hi >> 1) >> j & 1);
-                mont_dbl(yx[2], yz[2], t1[k], t2[k], yx[0], yz[0]);
+                $k = (($vi ^ $vi >> 1) >> $j & 1)
+                    + (($hi ^ $hi >> 1) >> $j & 1);
+                mont_dbl($yx[2], $yz[2], $t1[$k], $t2[$k], $yx[0], yz[0]);
 
-                k = (di >> j & 2) ^ ((di >> j & 1) << 1);
-                mont_add(t1[1], t2[1], t1[k], t2[k], yx[1], yz[1],
-                    p[di >> j & 1]);
+                $k = ($di >> $j & 2) ^ (($di >> $j & 1) << 1);
+                mont_add($t1[1], $t2[1], $t1[$k], $t2[$k], $yx[1], $yz[1],
+                    $p[$di >> $j & 1]);
 
-                mont_add(t1[2], t2[2], t1[0], t2[0], yx[2], yz[2],
-                    s[((vi ^ hi) >> j & 2) >> 1]);
+                mont_add($t1[2], $t2[2], $t1[0], $t2[0], $yx[2], $yz[2],
+                    $s[(($vi ^ $hi) >> $j & 2) >> 1]);
             }
         }
 
-        k = (vi & 1) + (hi & 1);
-        recip(t1[0], yz[k], 0);
-        mul(t1[1], yx[k], t1[0]);
+        $k = ($vi & 1) + ($hi & 1);
+        recip($t1[0], $yz[$k], 0);
+        mul($t1[1], $yx[$k], $t1[0]);
 
-        var Y = [];
-        pack(t1[1], Y);
-        return Y;
+        $Y = array();
+        pack($t1[1], $Y);
+        return $Y;
     }
 
     /* Key-pair generation
@@ -1068,14 +851,14 @@ class curve25519 {
      * s may be NULL if you don't care
      *
      * WARNING: if s is not NULL, this function has data-dependent timing */
-    function keygen (k) {
-        var P = [];
-        var s = [];
-        k = k || [];
-        clamp(k);
-        core(P, s, k, null);
+    function keygen ($k) {
+        $P = array();
+        $s = array();
+        $k = $k || array();
+        clamp($k);
+        core($P, $s, $k, null);
 
-        return { p: P, s: s, k: k };
+        return json_decode('{ "p": "$P", "s": "$s", "k": "$k" }');
     }
 
     return {
@@ -1085,4 +868,232 @@ class curve25519 {
     };
 }();
 
+?>
+
+<?php
+/*
+
+    // shortcuts from standard curve25519
+    private $zero = [0,0,0,0, 0,0,0,0, 0,0];
+    private $one  = [1,0,0,0, 0,0,0,0, 0,0];
+    private $nine = [9,0,0,0, 0,0,0,0, 0,0];
+    function add($a, $b) {
+        return [
+            $a[0] + $b[0], $a[1] + $b[1], $a[2] + $b[2], $a[3] + $b[3], $a[4] + $b[4],
+            $a[5] + $b[5], $a[6] + $b[6], $a[7] + $b[7], $a[8] + $b[8], $a[9] + $b[9]
+        ];
+    }
+    function sub($a, $b) {
+        $r = [
+            ($c = 0x7ffffda + $a[0] - $b[0]             ) & 0x3ffffff,
+            ($c = 0x3fffffe + $a[1] - $b[1] + ($c >> 26)) & 0x1ffffff,
+            ($c = 0x7fffffe + $a[2] - $b[2] + ($c >> 25)) & 0x3ffffff,
+            ($c = 0x3fffffe + $a[3] - $b[3] + ($c >> 26)) & 0x1ffffff,
+            ($c = 0x7fffffe + $a[4] - $b[4] + ($c >> 25)) & 0x3ffffff,
+            ($c = 0x3fffffe + $a[5] - $b[5] + ($c >> 26)) & 0x1ffffff,
+            ($c = 0x7fffffe + $a[6] - $b[6] + ($c >> 25)) & 0x3ffffff,
+            ($c = 0x3fffffe + $a[7] - $b[7] + ($c >> 26)) & 0x1ffffff,
+            ($c = 0x7fffffe + $a[8] - $b[8] + ($c >> 25)) & 0x3ffffff,
+            ($c = 0x3fffffe + $a[9] - $b[9] + ($c >> 26)) & 0x1ffffff,
+        ];
+        $r[0] += 19 * ($c >> 25);
+        return $r;
+    }
+    function mul($a, $b) {
+        list($s0, $s1, $s2, $s3, $s4, $s5, $s6, $s7, $s8, $s9) = $a;
+        list($r0, $r1, $r2, $r3, $r4, $r5, $r6, $r7, $r8, $r9) = $b;
+        $r1_2 = $r1 * 2;
+        $r3_2 = $r3 * 2;
+        $r5_2 = $r5 * 2;
+        $r2_19 = $r2 * 19;
+        $r4_19 = $r4 * 19;
+        $r5_19 = $r5 * 19;
+        $r6_19 = $r6 * 19;
+        $r7_19 = $r7 * 19;
+        $r8_19 = $r8 * 19;
+        $r9_19 = $r9 * 19;
+        $r3_38 = $r3 * 38;
+        $r5_38 = $r5 * 38;
+        $r7_38 = $r7 * 38;
+        $r9_38 = $r9 * 38;
+        $r = [
+            ($c = $m0 = ($r0 * $s0) + ($r1 * 38 * $s9) + ($r2_19 * $s8) + ($r3_38   * $s7) + ($r4_19 * $s6) + ($r5_38 * $s5) + ($r6_19 * $s4) + ($r7_38  * $s3) + ($r8_19 * $s2) + ($r9_38 * $s1)             ) & 0x3ffffff,
+            ($c = $m1 = ($r0 * $s1) + ($r1      * $s0) + ($r2_19 * $s9) + ($r3 * 19 * $s8) + ($r4_19 * $s7) + ($r5_19 * $s6) + ($r6_19 * $s5) + ($r7_19  * $s4) + ($r8_19 * $s3) + ($r9_19 * $s2) + ($c >> 26)) & 0x1ffffff,
+            ($c = $m2 = ($r0 * $s2) + ($r1_2    * $s1) + ($r2    * $s0) + ($r3_38   * $s9) + ($r4_19 * $s8) + ($r5_38 * $s7) + ($r6_19 * $s6) + ($r7_38  * $s5) + ($r8_19 * $s4) + ($r9_38 * $s3) + ($c >> 25)) & 0x3ffffff,
+            ($c = $m3 = ($r0 * $s3) + ($r1      * $s2) + ($r2    * $s1) + ($r3      * $s0) + ($r4_19 * $s9) + ($r5_19 * $s8) + ($r6_19 * $s7) + ($r7_19  * $s6) + ($r8_19 * $s5) + ($r9_19 * $s4) + ($c >> 26)) & 0x1ffffff,
+            ($c = $m4 = ($r0 * $s4) + ($r1_2    * $s3) + ($r2    * $s2) + ($r3_2    * $s1) + ($r4    * $s0) + ($r5_38 * $s9) + ($r6_19 * $s8) + ($r7_38  * $s7) + ($r8_19 * $s6) + ($r9_38 * $s5) + ($c >> 25)) & 0x3ffffff,
+            ($c = $m5 = ($r0 * $s5) + ($r1      * $s4) + ($r2    * $s3) + ($r3      * $s2) + ($r4    * $s1) + ($r5    * $s0) + ($r6_19 * $s9) + ($r7_19  * $s8) + ($r8_19 * $s7) + ($r9_19 * $s6) + ($c >> 26)) & 0x1ffffff,
+            ($c = $m6 = ($r0 * $s6) + ($r1_2    * $s5) + ($r2    * $s4) + ($r3_2    * $s3) + ($r4    * $s2) + ($r5_2  * $s1) + ($r6    * $s0) + ($r7_38  * $s9) + ($r8_19 * $s8) + ($r9_38 * $s7) + ($c >> 25)) & 0x3ffffff,
+            ($c = $m7 = ($r0 * $s7) + ($r1      * $s6) + ($r2    * $s5) + ($r3      * $s4) + ($r4    * $s3) + ($r5    * $s2) + ($r6    * $s1) + ($r7     * $s0) + ($r8_19 * $s9) + ($r9_19 * $s8) + ($c >> 26)) & 0x1ffffff,
+            ($c = $m8 = ($r0 * $s8) + ($r1_2    * $s7) + ($r2    * $s6) + ($r3_2    * $s5) + ($r4    * $s4) + ($r5_2  * $s3) + ($r6    * $s2) + ($r7 * 2 * $s1) + ($r8    * $s0) + ($r9_38 * $s9) + ($c >> 25)) & 0x3ffffff,
+            ($c = $m9 = ($r0 * $s9) + ($r1      * $s8) + ($r2    * $s7) + ($r3      * $s6) + ($r4    * $s5) + ($r5    * $s4) + ($r6    * $s3) + ($r7     * $s2) + ($r8    * $s1) + ($r9    * $s0) + ($c >> 26)) & 0x1ffffff
+        ];
+        $r[0] += ($c = 19 * ($c >> 25)) & 0x3ffffff;
+        $r[1] +=            ($c >> 26);
+        return $r;
+    }
+    function sqr($a, $n = 1) {
+        list($r0, $r1, $r2, $r3, $r4, $r5, $r6, $r7, $r8, $r9) = $a;
+        do {
+            $r0_2 = $r0 * 2;
+            $r1_2 = $r1 * 2;
+            $r2_2 = $r2 * 2;
+            $r3_2 = $r3 * 2;
+            $r4_2 = $r4 * 2;
+            $r5_2 = $r5 * 2;
+            $r7_2 = $r7 * 2;
+            $r6_19 = $r6 * 19;
+            $r7_38 = $r7 * 38;
+            $r8_19 = $r8 * 19;
+            $r9_38 = $r9 * 38;
+            $s0 = ($r0   * $r0) + ($r5 * $r5 * 38) + ($r6_19 * $r4_2) + ($r7_38 * $r3_2) + ($r8_19 * $r2_2) + ($r9_38 * $r1_2);
+            $s1 = ($r0_2 * $r1)                    + ($r6_19 * $r5_2) + ($r7_38 * $r4  ) + ($r8_19 * $r3_2) + ($r9_38 * $r2  );
+            $s2 = ($r0_2 * $r2) + ($r1_2 * $r1)    + ($r6_19 * $r6  ) + ($r7_38 * $r5_2) + ($r8_19 * $r4_2) + ($r9_38 * $r3_2);
+            $s3 = ($r0_2 * $r3) + ($r1_2 * $r2)                       + ($r7_38 * $r6  ) + ($r8_19 * $r5_2) + ($r9_38 * $r4  );
+            $s4 = ($r0_2 * $r4) + ($r1_2 * $r3_2) + ($r2   * $r2)     + ($r7_38 * $r7  ) + ($r8_19 * $r6*2) + ($r9_38 * $r5_2);
+            $s5 = ($r0_2 * $r5) + ($r1_2 * $r4  ) + ($r2_2 * $r3)                        + ($r8_19 * $r7_2) + ($r9_38 * $r6  );
+            $s6 = ($r0_2 * $r6) + ($r1_2 * $r5_2) + ($r2_2 * $r4) + ($r3_2 * $r3)        + ($r8_19 * $r8  ) + ($r9_38 * $r7_2);
+            $s7 = ($r0_2 * $r7) + ($r1_2 * $r6  ) + ($r2_2 * $r5) + ($r3_2 * $r4  )                         + ($r9_38 * $r8  );
+            $s8 = ($r0_2 * $r8) + ($r1_2 * $r7_2) + ($r2_2 * $r6) + ($r3_2 * $r5_2) + ($r4 * $r4  )         + ($r9_38 * $r9  );
+            $s9 = ($r0_2 * $r9) + ($r1_2 * $r8  ) + ($r2_2 * $r7) + ($r3_2 * $r6  ) + ($r4 * $r5_2);
+            $r0 = ($c = $s0             ) & 0x3ffffff;
+            $r1 = ($c = $s1 + ($c >> 26)) & 0x1ffffff;
+            $r2 = ($c = $s2 + ($c >> 25)) & 0x3ffffff;
+            $r3 = ($c = $s3 + ($c >> 26)) & 0x1ffffff;
+            $r4 = ($c = $s4 + ($c >> 25)) & 0x3ffffff;
+            $r5 = ($c = $s5 + ($c >> 26)) & 0x1ffffff;
+            $r6 = ($c = $s6 + ($c >> 25)) & 0x3ffffff;
+            $r7 = ($c = $s7 + ($c >> 26)) & 0x1ffffff;
+            $r8 = ($c = $s8 + ($c >> 25)) & 0x3ffffff;
+            $r9 = ($c = $s9 + ($c >> 26)) & 0x1ffffff;
+            $r0 += ($c = 19 * ($c >> 25)) & 0x3ffffff;
+            $r1 +=            ($c >> 26);
+        } while (--$n);
+        return [$r0, $r1, $r2, $r3, $r4, $r5, $r6, $r7, $r8, $r9];
+    }
+    function mul121665($in) {
+        $r = [
+            ($c = $in[0] * 121665             ) & 0x3ffffff,
+            ($c = $in[1] * 121665 + ($c >> 26)) & 0x1ffffff,
+            ($c = $in[2] * 121665 + ($c >> 25)) & 0x3ffffff,
+            ($c = $in[3] * 121665 + ($c >> 26)) & 0x1ffffff,
+            ($c = $in[4] * 121665 + ($c >> 25)) & 0x3ffffff,
+            ($c = $in[5] * 121665 + ($c >> 26)) & 0x1ffffff,
+            ($c = $in[6] * 121665 + ($c >> 25)) & 0x3ffffff,
+            ($c = $in[7] * 121665 + ($c >> 26)) & 0x1ffffff,
+            ($c = $in[8] * 121665 + ($c >> 25)) & 0x3ffffff,
+            ($c = $in[9] * 121665 + ($c >> 26)) & 0x1ffffff,
+        ];
+        $r[0] += 19 * ($c >> 25);
+        return $r;
+    }
+    function scalarmult($f, $c) {
+        $t = $this->one;
+        $u = $this->zero;
+        $v = $this->one;
+        $w = $c;
+        $swapBit = 1;
+        $i = 254;
+        while ($i --> 2) {
+            $x = $this->add($w, $v);
+            $v = $this->sub($w, $v);
+            $y = $this->add($t, $u);
+            $u = $this->sub($t, $u);
+            $t = $this->mul($y, $v);
+            $u = $this->mul($x, $u);
+            $z = $this->add($t, $u);
+            $u = $this->sqr($this->sub($t, $u));
+            $t = $this->sqr($z);
+            $u = $this->mul($u, $c);
+            $x = $this->sqr($x);
+            $v = $this->sqr($v);
+            $w = $this->mul($x, $v);
+            $v = $this->sub($x, $v);
+            $v = $this->mul($v, $this->add($this->mul121665($v), $x));
+            $b = ($f[$i >> 3] >> ($i & 7)) & 1;
+            $swap = $b ^ $swapBit;
+            list($w, $t) = [[$w, $t], [$t, $w]][$swap];
+            list($v, $u) = [[$v, $u], [$u, $v]][$swap];
+            $swapBit = $b;
+        }
+        $i = 3;
+        while ($i--) {
+            $x = $this->sqr($this->add($w, $v));
+            $v = $this->sqr($this->sub($w, $v));
+            $w = $this->mul($x, $v);
+            $v = $this->sub($x, $v);
+            $v = $this->mul($v, $this->add($this->mul121665($v), $x));
+        }
+        $a = $this->sqr($v);
+        $b = $this->mul($this->sqr($a, 2), $v);
+        $a = $this->mul($b, $a);
+        $b = $this->mul($this->sqr($a), $b);
+        $b = $this->mul($this->sqr($b, 5), $b);
+        $c = $this->mul($this->sqr($b, 10), $b);
+        $b = $this->mul($this->sqr($this->mul($this->sqr($c, 20), $c), 10), $b);
+        $c = $this->mul($this->sqr($b, 50), $b);
+        $r = $this->mul($w, $this->mul($this->sqr($this->mul($this->sqr($this->mul($this->sqr($c, 100), $c), 50), $b), 5), $a));
+        $r = [
+            ($c = $r[0] + 0x4000000             ) & 0x3ffffff,
+            ($c = $r[1] + 0x1ffffff + ($c >> 26)) & 0x1ffffff,
+            ($c = $r[2] + 0x3ffffff + ($c >> 25)) & 0x3ffffff,
+            ($c = $r[3] + 0x1ffffff + ($c >> 26)) & 0x1ffffff,
+            ($c = $r[4] + 0x3ffffff + ($c >> 25)) & 0x3ffffff,
+            ($c = $r[5] + 0x1ffffff + ($c >> 26)) & 0x1ffffff,
+            ($c = $r[6] + 0x3ffffff + ($c >> 25)) & 0x3ffffff,
+            ($c = $r[7] + 0x1ffffff + ($c >> 26)) & 0x1ffffff,
+            ($c = $r[8] + 0x3ffffff + ($c >> 25)) & 0x3ffffff,
+            ($c = $r[9] + 0x1ffffff + ($c >> 26)) & 0x1ffffff
+        ];
+        return pack('V8',
+             $r[0]        | ($r[1] << 26),
+            ($r[1] >>  6) | ($r[2] << 19),
+            ($r[2] >> 13) | ($r[3] << 13),
+            ($r[3] >> 19) | ($r[4] <<  6),
+             $r[5]        | ($r[6] << 25),
+            ($r[6] >>  7) | ($r[7] << 19),
+            ($r[7] >> 13) | ($r[8] << 12),
+            ($r[8] >> 20) | ($r[9] <<  6)
+        );
+    }
+    function clamp($secret)
+    {
+        $e = array_values(unpack('C32', $secret));
+        $e[0]  &= 0xf8;
+        $e[31] &= 0x7f;
+        $e[31] |= 0x40;
+        return $e;
+    }
+    function getPublic($secret)
+    {
+        if (!is_string($secret) || strlen($secret) !== 32) {
+            throw new InvalidArgumentException('Secret must be a 32 byte string');
+        }
+        return $this->scalarmult($this->clamp($secret), $this->nine);
+    }
+    function getShared($secret, $public)
+    {
+        if (!is_string($secret) || strlen($secret) !== 32) {
+            throw new InvalidArgumentException('Secret must be a 32 byte string');
+        }
+        if (!is_string($public) || strlen($public) !== 32) {
+            throw new InvalidArgumentException('Public must be a 32 byte string');
+        }
+        $w = unpack('V8', $public);
+        $r = [
+              $w[1]                         & 0x3ffffff, // 26
+            (($w[1] >> 26) | ($w[2] <<  6)) & 0x1ffffff, // 25 - 51
+            (($w[2] >> 19) | ($w[3] << 13)) & 0x3ffffff, // 26 - 77
+            (($w[3] >> 13) | ($w[4] << 19)) & 0x1ffffff, // 25 - 102
+             ($w[4] >>  6)                  & 0x3ffffff, // 26 - 128
+              $w[5]                         & 0x1ffffff, // 25 - 153
+            (($w[5] >> 25) | ($w[6] <<  7)) & 0x3ffffff, // 26 - 179
+            (($w[6] >> 19) | ($w[7] << 13)) & 0x1ffffff, // 25 - 204
+            (($w[7] >> 12) | ($w[8] << 20)) & 0x3ffffff, // 26 - 230
+             ($w[8] >> 6)                   & 0x1ffffff, // 25 - 255
+        ];
+        return $this->scalarmult($this->clamp($secret), $r);
+  
+  }
+*/
 ?>
