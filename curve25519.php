@@ -96,7 +96,7 @@ class Curve25519 {
 
     //region radix 2^8 math
 
-    function cpy32 ($d, $s) {
+    function cpy32 (&$d, $s) {
         for ($i = 0; $i < 32; $i++)
             $d[$i] = $s[$i];
     }
@@ -122,7 +122,7 @@ class Curve25519 {
     /* p += x * y * z  where z is a small integer
      * x is size 32, y is size t, p is size 32+t
      * y is allowed to overlap with p+32 if you don't care about the upper half  */
-    function mula32 ($p, $x, $y, $t, $z) {
+    function mula32 (&$p, $x, $y, $t, $z) {
         $t = $t | 0;
         $z = $z | 0;
 
@@ -144,7 +144,7 @@ class Curve25519 {
      * requires t > 0 && d[t-1] !== 0
      * requires that r[-1] and d[-1] are valid memory locations
      * q may overlap with r+t */
-    function divmod ($q, $r, $n, $d, $t) {
+    function divmod (&$q, &$r, $n, $d, $t) {
         $n = $n | 0;
         $t = $t | 0;
 
@@ -217,7 +217,7 @@ class Curve25519 {
     //region pack / unpack
 
     /* Convert to internal format from little-endian byte format */
-    function unpack ($x, $m) {
+    function unpack (&$x, $m) {
         for ($i = 0; $i < $this->KEY_SIZE; $i += 2)
             $x[$i / 2] = $m[$i] & 0xFF | (($m[$i + 1] & 0xFF) << 8);
     }
@@ -225,7 +225,7 @@ class Curve25519 {
     /* Check if reduced-form input >= 2^255-19 */
     function is_overflow ($x) {
         return (
-            (($x[0] > $P26 - 19)) &&
+            (($x[0] > $this->P26 - 19)) &&
                 (($x[1] & $x[3] & $x[5] & $x[7] & $x[9]) === $this->P25) &&
                 (($x[2] & $x[4] & $x[6] & $x[8]) === $this->P26)
             ) || ($x[9] > $this->P25);
@@ -236,7 +236,7 @@ class Curve25519 {
      *     unpack, mul, sqr
      *     set --  if input in range 0 .. P25
      * If you're unsure if the number is reduced, first multiply it by 1.  */
-    function pack ($x, $m) {
+    function pack (&$x, $m) {
         for ($i = 0; $i < $this->UNPACKED_SIZE; ++$i) {
             $m[2 * $i] = $x[$i] & 0x00FF;
             $m[2 * $i + 1] = ($x[$i] & 0xFF00) >> 8;
@@ -246,17 +246,17 @@ class Curve25519 {
     //endregion
 
     function createUnpackedArray () {
-        return array();
+        return array_pad(array(), 16, 0);
     }
 
     /* Copy a number */
-    function cpy (&$d, &$s) {
+    function cpy (&$d, $s) {
         for ($i = 0; $i < $this->UNPACKED_SIZE; ++$i)
             $d[$i] = $s[$i];
     }
 
     /* Set a number to value, which must be in range -185861411 .. 185861411 */
-    function set ($d, $s) {
+    function set (&$d, $s) {
         $d[0] = $s;
         for ($i = 1; $i < $this->UNPACKED_SIZE; ++$i)
             $d[$i] = 0;
@@ -278,7 +278,7 @@ class Curve25519 {
     /* Calculates a reciprocal.  The output is in reduced form, the inputs need not
      * be.  Simply calculates  y = x^(p-2)  so it's not too fast. */
     /* When sqrtassist is true, it instead calculates y = x^((p-5)/8) */
-    function recip ($y, $x, $sqrtassist) {
+    function recip (&$y, $x, $sqrtassist) {
         $t0 = $this->createUnpackedArray();
         $t1 = $this->createUnpackedArray();
         $t2 = $this->createUnpackedArray();
@@ -358,7 +358,7 @@ class Curve25519 {
     }
 
     /* a square root */
-    function sqr ($x, $u) {
+    function sqrt(&$x, $u) {
         $v = $this->createUnpackedArray();
         $t1 = $this->createUnpackedArray();
         $t2 = $this->createUnpackedArray();
@@ -388,17 +388,17 @@ class Curve25519 {
         $r[6] = ($v = (($v / 0x10000) | 0) + 2*$a0*$a6 + 2*$a1*$a5 + 2*$a2*$a4 + $a3*$a3) & 0xFFFF;
        $r[7] = ($v = (($v / 0x10000) | 0) + 2*$a0*$a7 + 2*$a1*$a6 + 2*$a2*$a5 + 2*$a3*$a4) & 0xFFFF;
         $r[8] = ($v = (($v / 0x10000) | 0) + 2*$a1*$a7 + 2*$a2*$a6 + 2*$a3*$a5 + $a4*$a4) & 0xFFFF;
-        $r[9] = ($v = (($v / 0x10000) | 0) + 2*$a2*a7 + 2*$a3*$a6 + 2*$a4*$a5) & 0xFFFF;
-        $r[10] = ($v = (($v / 0x10000) | 0) + 2*$a3*a7 + 2*$a4*$a6 + $a5*$a5) & 0xFFFF;
-        $r[11] = ($v = (($v / 0x10000) | 0) + 2*$a4*a7 + 2*$a5*$a6) & 0xFFFF;
-        $r[12] = ($v = (($v / 0x10000) | 0) + 2*$a5*a7 + $a6*$a6) & 0xFFFF;
-        $r[13] = ($v = (($v / 0x10000) | 0) + 2*$a6*a7) & 0xFFFF;
+        $r[9] = ($v = (($v / 0x10000) | 0) + 2*$a2*$a7 + 2*$a3*$a6 + 2*$a4*$a5) & 0xFFFF;
+        $r[10] = ($v = (($v / 0x10000) | 0) + 2*$a3*$a7 + 2*$a4*$a6 + $a5*$a5) & 0xFFFF;
+        $r[11] = ($v = (($v / 0x10000) | 0) + 2*$a4*$a7 + 2*$a5*$a6) & 0xFFFF;
+        $r[12] = ($v = (($v / 0x10000) | 0) + 2*$a5*$a7 + $a6*$a6) & 0xFFFF;
+        $r[13] = ($v = (($v / 0x10000) | 0) + 2*$a6*$a7) & 0xFFFF;
         $r[14] = ($v = (($v / 0x10000) | 0) + $a7*$a7) & 0xFFFF;
         $r[15] = (($v / 0x10000) | 0);
         return $r;
     }
 
-    function sqrt ($r, $a) {
+    function sqr (&$r, $a) {
         $x = $this->c255lsqr8h($a[15], $a[14], $a[13], $a[12], $a[11], $a[10], $a[9], $a[8]);
         $z = $this->c255lsqr8h($a[7], $a[6], $a[5], $a[4], $a[3], $a[2], $a[1], $a[0]);
         $y = $this->c255lsqr8h($a[15] + $a[7], $a[14] + $a[6], $a[13] + $a[5], $a[12] + $a[4], $a[11] + $a[3], $a[10] + $a[2], $a[9] + $a[1], $a[8] + $a[0]);
@@ -442,10 +442,10 @@ class Curve25519 {
         $r[13] = ($v = (($v / 0x10000) | 0) + $a6*$b7 + $a7*$b6) & 0xFFFF;
         $r[14] = ($v = (($v / 0x10000) | 0) + $a7*$b7) & 0xFFFF;
         $r[15] = (($v / 0x10000) | 0);
-        return r;
+        return $r;
     }
 
-    function mul ($r, $a, $b) {
+    function mul (&$r, $a, $b) {
         // Karatsuba multiplication scheme: x*y = (b^2+b)*x1*y1 - b*(x1-x0)*(y1-y0) + (b+1)*x0*y0
         $x = $this->c255lmul8h($a[15], $a[14], $a[13], $a[12], $a[11], $a[10], $a[9], $a[8], $b[15], $b[14], $b[13], $b[12], $b[11], $b[10], $b[9], $b[8]);
         $z = $this->c255lmul8h($a[7], $a[6], $a[5], $a[4], $a[3], $a[2], $a[1], $a[0], $b[7], $b[6], $b[5], $b[4], $b[3], $b[2], $b[1], $b[0]);
@@ -472,7 +472,7 @@ class Curve25519 {
         $this->c255lreduce($r, $r15);
     }
 
-    function c255lreduce ($a, $a15) {
+    function c255lreduce (&$a, $a15) {
         $v = $a15;
         $a[15] = $v & 0x7FFF;
         $v = (($v / 0x8000) | 0) * 19;
@@ -484,7 +484,7 @@ class Curve25519 {
         $a[15] += $v;
     }
 
-    function add ($r, $a, $b) {
+    function add (&$r, $a, $b) {
         $v;
         $r[0] = ($v = ((($a[15] / 0x8000) | 0) + (($b[15] / 0x8000) | 0)) * 19 + $a[0] + $b[0]) & 0xFFFF;
         for ($i = 1; $i <= 14; ++$i)
@@ -493,7 +493,7 @@ class Curve25519 {
         $r[15] = (($v / 0x10000) | 0) + ($a[15] & 0x7FFF) + ($b[15] & 0x7FFF);
     }
 
-    function sub ($r, $a, $b) {
+    function sub (&$r, $a, $b) {
         $v;
         $r[0] = ($v = 0x80000 + ((($a[15] / 0x8000) | 0) - (($b[15] / 0x8000) | 0) - 1) * 19 + $a[0] - $b[0]) & 0xFFFF;
         for ($i = 1; $i <= 14; ++$i)
@@ -502,11 +502,11 @@ class Curve25519 {
         $r[15] = (($v / 0x10000) | 0) + 0x7ff8 + ($a[15] & 0x7FFF) - ($b[15] & 0x7FFF);
     }
 
-    function mul_small ($r, $a, $m) {
+    function mul_small (&$r, $a, $m) {
         $v;
         $r[0] = ($v = $a[0] * $m) & 0xFFFF;
         for ($i = 1; $i <= 14; ++$i)
-            $r[i] = ($v = (($v / 0x10000) | 0) + $a[$i]*$m) & 0xFFFF;
+            $r[$i] = ($v = (($v / 0x10000) | 0) + $a[$i]*$m) & 0xFFFF;
 
         $r15 = (($v / 0x10000) | 0) + $a[15]*$m;
         $this->c255lreduce($r, $r15);
@@ -520,7 +520,7 @@ class Curve25519 {
 
     /* t1 = ax + az
      * t2 = ax - az  */
-    function mont_prep ($t1, $t2, $ax, $az) {
+    function mont_prep (&$t1, &$t2, $ax, $az) {
         $this->add($t1, $ax, $az);
         $this->sub($t2, $ax, $az);
     }
@@ -531,7 +531,7 @@ class Curve25519 {
      *  X(Q) = (t3+t4)/(t3-t4)
      *  X(P-Q) = dx
      * clobbers t1 and t2, preserves t3 and t4  */
-    function mont_add ($t1, $t2, $t3, $t4, $ax, $az, $dx) {
+    function mont_add ($t1, $t2, $t3, $t4, &$ax, &$az, &$dx) {
         $this->mul($ax, $t2, $t3);
         $this->mul($az, $t1, $t4);
         $this->add($t1, $ax, $az);
@@ -545,7 +545,7 @@ class Curve25519 {
      *  X(B) = bx/bz
      *  X(Q) = (t3+t4)/(t3-t4)
      * clobbers t1 and t2, preserves t3 and t4  */
-    function mont_dbl ($t1, $t2, $t3, $t4, $bx, $bz) {
+    function mont_dbl ($t1, $t2, $t3, $t4, &$bx, &$bz) {
         $this->sqr($t1, $t3);
         $this->sqr($t2, $t4);
         $this->mul($bx, $t1, $t2);
@@ -557,16 +557,16 @@ class Curve25519 {
 
     /* Y^2 = X^3 + 486662 X^2 + X
      * t is a temporary  */
-    function x_to_y2 ($t, $y2, $x) {
+    function x_to_y2 (&$t, &$y2, $x) {
         $this->sqr($t, $x);
         $this->mul_small($y2, $x, 486662);
         $this->add($t, $t, $y2);
-        $this->add($t, $t, $C1);
+        $this->add($t, $t, $this->C1);
         $this->mul($y2, $t, $x);
     }
 
     /* P = kG   and  s = sign(P)/k  */
-    function core ($Px, $s, $k, $Gx) {
+    function core (&$Px, &$s, $k, $Gx) {
         $dx = $this->createUnpackedArray();
         $t1 = $this->createUnpackedArray();
         $t2 = $this->createUnpackedArray();
@@ -585,6 +585,7 @@ class Curve25519 {
 
         /* 0G = point-at-infinity */
         $this->set($x[0], 1);
+        var_dump($x);
         $this->set($z[0], 0);
 
         /* 1G = G */
@@ -621,13 +622,13 @@ class Curve25519 {
             $this->recip($t3, $z[1], 0); /* where Q=P+G ... */
             $this->mul($t2, $x[1], $t3); /* t2 = Qx  */
             $this->add($t2, $t2, $dx); /* t2 = Qx + Px  */
-            $this->add($t2, $t2, $C486671); /* t2 = Qx + Px + Gx + 486662  */
-            $this->sub($dx, $dx, $C9); /* dx = Px - Gx  */
+            $this->add($t2, $t2, $this->C486671); /* t2 = Qx + Px + Gx + 486662  */
+            $this->sub($dx, $dx, $this->C9); /* dx = Px - Gx  */
             $this->sqr($t3, $dx); /* t3 = (Px - Gx)^2  */
             $this->mul($dx, $t2, $t3); /* dx = t2 (Px - Gx)^2  */
             $this->sub($dx, $dx, $t1); /* dx = t2 (Px - Gx)^2 - Py^2  */
-            $this->sub($dx, $dx, $C39420360); /* dx = t2 (Px - Gx)^2 - Py^2 - Gy^2  */
-            $this->mul($t1, $dx, $BASE_R2Y); /* t1 = -Py  */
+            $this->sub($dx, $dx, $this->C39420360); /* dx = t2 (Px - Gx)^2 - Py^2 - Gy^2  */
+            $this->mul($t1, $dx, $this->BASE_R2Y); /* t1 = -Py  */
 
             if ($this->is_negative($t1) !== 0)    /* sign is 1, so just copy  */
                 $this->cpy32($s, $k);
@@ -639,9 +640,9 @@ class Curve25519 {
             //divmod((dstptr) t1, s, 32, order25519, 32);
 
             /* take reciprocal of s mod q */
-            $temp1 = array();
-            $temp2 = array();
-            $temp3 = array();
+            $temp1 = array_pad(array(), 32, 0);
+            $temp2 = array_pad(array(), 32, 0);
+            $temp3 = array_pad(array(), 64, 0);
             $this->cpy32($temp1, $this->ORDER);
             $this->cpy32($s, $this->egcd32($temp2, $temp3, $s, $temp1));
             if (($s[31] & 0x80) !== 0)
