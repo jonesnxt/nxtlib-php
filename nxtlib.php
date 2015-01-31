@@ -2,8 +2,9 @@
 	// nxtlib-php
 	// created by Alex Jones
 	// MIT licenced, use how you'd like (:
+    include("curve25519.php");
 
-	class nxtlib
+	class Nxtlib
 	{
 		private $nodeAddress;
 		function __construct($nodeAddr)
@@ -18,48 +19,37 @@
 			return json_decode($rawtext);
 		}
 
-		function sign($message, $passphrase)
-		{
-			$priv = hash("sha256", $passphrase);
-        	$P = curve25519_public($private);
-        	$s = curve25519_shared($private, $public);
+		function sign($message, $secretPhrase) {
 
-        	$m = hash("sha256", $message);
+        $P = array();
+        $s = array();
+        $dt = curve25519_keygen(hash("sha256", $secretPhrase));
 
-        	$x = hash("sha256", $m.$s);
+        $P = $dt->P;
+        $s = $dt->s;
 
-        	$Y = curve25519_public($x);
+        $m = hash("sha256", $message);
 
-        	$h = hash("sha256", $m.$Y);
+        $x = hash($s.$m);
 
-        	$v = 
+        $Y = curve25519_keygen($x)->P;
 
-        digest.update(m);
-        byte[] x = digest.digest(s);
+        $h = hash("sha256", $m.$Y);
 
-        byte[] Y = new byte[32];
-        Curve25519.keygen(Y, null, x);
+        $v = curve25519_sign($h, $x, $s);
 
-        digest.update(m);
-        byte[] h = digest.digest(Y);
-
-        byte[] v = new byte[32];
-        Curve25519.sign(v, h, x, s);
-
-        byte[] signature = new byte[64];
-        System.arraycopy(v, 0, signature, 0, 32);
-        System.arraycopy(h, 0, signature, 32, 32);
+        $signature = $v.$h;
 
         /*
             if (!Curve25519.isCanonicalSignature(signature)) {
                 throw new RuntimeException("Signature not canonical");
             }
             */
-        return signature;
+        return $signature;
 
     }
 
-		}
+
 	}
 
 ?>
