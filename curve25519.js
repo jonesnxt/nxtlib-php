@@ -74,6 +74,14 @@ var curve25519 = function () {
      *   k [out] your private key for key agreement
      *   k  [in]  32 random bytes
      */
+    var cntr = 0;
+    function ten(p)
+    {
+        cntr+= 1;
+        if(cntr < 10) alert(p);
+    }
+
+
     function clamp (k) {
         k[31] &= 0x7F;
         k[31] |= 0x40;
@@ -124,6 +132,7 @@ var curve25519 = function () {
             w >>= 8;
         }
         p[i + n] = (w + (p[i + n] & 0xFF)) & 0xFF;
+
         return w >> 8;
     }
 
@@ -135,12 +144,10 @@ var curve25519 = function () {
     function divmod (q, r, n, d, t) {
         n = n | 0;
         t = t | 0;
-
         var rn = 0;
         var dt = (d[t - 1] & 0xFF) << 8;
         if (t > 1)
             dt |= (d[t - 2] & 0xFF);
-
         while (n-- >= t) {
             var z = (rn << 16) | ((r[n] & 0xFF) << 8);
             if (n > 0)
@@ -157,6 +164,7 @@ var curve25519 = function () {
         }
 
         r[t-1] = rn & 0xFF;
+
     }
 
     function numsize (x, n) {
@@ -182,6 +190,7 @@ var curve25519 = function () {
             qn = bn - an + 1;
             divmod(temp, b, bn, a, an);
             bn = numsize(b, bn);
+
             if (bn === 0)
                 return x;
             mula32(y, x, temp, qn, -1);
@@ -189,6 +198,7 @@ var curve25519 = function () {
             qn = an - bn + 1;
             divmod(temp, a, an, b, bn);
             an = numsize(a, an);
+
             if (an === 0)
                 return y;
             mula32(x, y, temp, qn, -1);
@@ -410,6 +420,7 @@ var curve25519 = function () {
         r[14] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[14] + y[6] -x[6] -z[6] + x[14] * 38) & 0xFFFF;
         var r15 = 0x7fff80 + ((v / 0x10000) | 0) + z[15] + y[7] -x[7] -z[7] + x[15] * 38;
         c255lreduce(r, r15);
+
     }
 
     function c255lmul8h (a7, a6, a5, a4, a3, a2, a1, a0, b7, b6, b5, b4, b3, b2, b1, b0) {
@@ -435,6 +446,7 @@ var curve25519 = function () {
     }
 
     function c255lmulmodp (r, a, b) {
+
         // Karatsuba multiplication scheme: x*y = (b^2+b)*x1*y1 - b*(x1-x0)*(y1-y0) + (b+1)*x0*y0
         var x = c255lmul8h(a[15], a[14], a[13], a[12], a[11], a[10], a[9], a[8], b[15], b[14], b[13], b[12], b[11], b[10], b[9], b[8]);
         var z = c255lmul8h(a[7], a[6], a[5], a[4], a[3], a[2], a[1], a[0], b[7], b[6], b[5], b[4], b[3], b[2], b[1], b[0]);
@@ -459,6 +471,7 @@ var curve25519 = function () {
         r[14] = (v = 0x7fff80 + ((v / 0x10000) | 0) + z[14] + y[6] -x[6] -z[6] + x[14] * 38) & 0xFFFF;
         var r15 = 0x7fff80 + ((v / 0x10000) | 0) + z[15] + y[7] -x[7] -z[7] + x[15] * 38;
         c255lreduce(r, r15);
+
     }
 
     function c255lreduce (a, a15) {
@@ -528,6 +541,8 @@ var curve25519 = function () {
         sqr(ax, t1);
         sqr(t1, t2);
         mul(az, t1, dx);
+        //alert("t1"+JSON.stringify(ax)+"t2"+JSON.stringify(az));
+
     }
 
     /* B = 2 * Q   where
@@ -588,7 +603,6 @@ var curve25519 = function () {
                 var az = z[bit0];
                 var bx = x[bit1];
                 var bz = z[bit1];
-
                 /* a' = a + b	*/
                 /* b' = 2 b	*/
                 mont_prep(t1, t2, ax, az);
@@ -617,6 +631,7 @@ var curve25519 = function () {
             sub(dx, dx, C39420360); /* dx = t2 (Px - Gx)^2 - Py^2 - Gy^2  */
             mul(t1, dx, BASE_R2Y); /* t1 = -Py  */
 
+
             if (is_negative(t1) !== 0)    /* sign is 1, so just copy  */
                 cpy32(s, k);
             else            /* sign is -1, so negate  */
@@ -632,11 +647,13 @@ var curve25519 = function () {
             var temp3 = new Array(64);
             cpy32(temp1, ORDER);
             cpy32(s, egcd32(temp2, temp3, s, temp1));
+
             if ((s[31] & 0x80) !== 0)
                 mula_small(s, s, 0, ORDER, 32, 1);
 
         }
     }
+
 
     /********* DIGITAL SIGNATURES *********/
 
@@ -711,7 +728,7 @@ var curve25519 = function () {
         mula32(tmp1, v, s, 32, 1);
         divmod(tmp2, tmp1, 64, ORDER, 32);
 
-        for (w = 0, i = 0; i < 32; i++)
+        for (w = 0, i = 0; i < 32; i++) 
             w |= v[i] = tmp1[i];
 
         return w !== 0 ? v : undefined;
