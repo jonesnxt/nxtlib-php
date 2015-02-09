@@ -24,86 +24,82 @@
 
 
 
-function sign($message, $secretPhrase) {
-        $messageBytes = $this->convert->stringToByteArray($message);
-        $secretPhraseBytes = $this->convert->stringToByteArray($secretPhrase);
+        function signBytes($message, $secretPhrase) {
+            $messageBytes = $message;
+            $secretPhraseBytes = $this->convert->stringToByteArray($secretPhrase);
 
-        $digest = $this->convert->hexStringToByteArray(hash("sha256", $secretPhrase));
+            $digest = $this->convert->hexStringToByteArray(hash("sha256", $secretPhrase));
 
-        $s = $this->curve->keygen($digest)->s;
+            $s = $this->curve->keygen($digest)->s;
 
-        $m = $this->convert->hexStringToByteArray(hash("sha256", hex2bin($this->convert->byteArrayToHexString($messageBytes))));
+            $m = $this->convert->hexStringToByteArray(hash("sha256", hex2bin($this->convert->byteArrayToHexString($messageBytes))));
 
-        $x = $this->convert->hexStringToByteArray(hash("sha256", hex2bin($this->convert->byteArrayToHexString(array_merge($m, $s)))));
+            $x = $this->convert->hexStringToByteArray(hash("sha256", hex2bin($this->convert->byteArrayToHexString(array_merge($m, $s)))));
 
-        $key = $this->curve->keygen($x);
-        $x = $key->k;
-        $y = $key->p;
+            $key = $this->curve->keygen($x);
+            $x = $key->k;
+            $y = $key->p;
 
-        $h = $this->convert->hexStringToByteArray(hash("sha256", hex2bin($this->convert->byteArrayToHexString(array_merge($m, $y)))));
+            $h = $this->convert->hexStringToByteArray(hash("sha256", hex2bin($this->convert->byteArrayToHexString(array_merge($m, $y)))));
 
-        $v = $this->curve->sign($h, $x, $s);
+            $v = $this->curve->sign($h, $x, $s);
 
-        return $this->convert->byteArrayToHexString(array_merge($v, $h));
-    }
+            return $this->convert->byteArrayToHexString(array_merge($v, $h));
+        }
 
 
 
-    function verifyBytes(signature, message, publicKey) {
-        var signatureBytes = signature;
-        var messageBytes = message;
-        var publicKeyBytes = publicKey;
-        var v = signatureBytes.slice(0, 32);
-        var h = signatureBytes.slice(32);
-        var y = curve25519.verify(v, h, publicKeyBytes);
+        function verifyBytes(signature, message, publicKey) {
+            $signatureBytes = $this->convert->stringToByteArray($signature);
+            $messageBytes = $this->convert->stringToByteArray($message);
+            $publicKeyBytes = $this->convert->stringToByteArray($publicKey);
+            $v = substr($signatureBytes, 0, 32);
+            $h = substr($signatureBytes, 32);
+            $y = $this->curve->verify($v, $h, $publicKeyBytes);
 
-        var m = simpleHash(messageBytes);
+            $m = hash("sha256", hex2bin($this->convert->byteArrayToHexString($messageBytes));
 
-        _hash.init();
-        _hash.update(m);
-        _hash.update(y);
-        var h2 = _hash.getBytes();
+            $h2 = hash("sha256", hex2bin($this->convert->byteArrayToHexString(array_merge($m, $y))));
 
-        return areByteArraysEqual(h, h2);
-    }
-
+            return $this->convert->areByteArraysEqual($h, $h2);
+        }
 
 }
 
 class Converters {
 
-public function charToNibble($char)
-{
-    switch($char)
+    public function charToNibble($char)
     {
-        case "0": return 0;
-        case "1": return 1;
-        case "2": return 2;
-        case "3": return 3;
-        case "4": return 4;
-        case "5": return 5;
-        case "6": return 6;
-        case "7": return 7;
-        case "8": return 8;
-        case "9": return 9;
-        case "a": return 10;
-        case "A": return 10;
-        case "b": return 11;
-        case "B": return 11;
-        case "c": return 12;
-        case "C": return 12;
-        case "d": return 13;
-        case "D": return 13;
-        case "e": return 14;
-        case "E": return 14;
-        case "f": return 15;
-        case "F": return 15;
+        switch($char)
+        {
+            case "0": return 0;
+            case "1": return 1;
+            case "2": return 2;
+            case "3": return 3;
+            case "4": return 4;
+            case "5": return 5;
+            case "6": return 6;
+            case "7": return 7;
+            case "8": return 8;
+            case "9": return 9;
+            case "a": return 10;
+            case "A": return 10;
+            case "b": return 11;
+            case "B": return 11;
+            case "c": return 12;
+            case "C": return 12;
+            case "d": return 13;
+            case "D": return 13;
+            case "e": return 14;
+            case "E": return 14;
+            case "f": return 15;
+            case "F": return 15;
+        }
+        return 0;
     }
-    return 0;
-}
 
 
-function hexStringToByteArray($str) {
+    function hexStringToByteArray($str) {
 
             $bytes = array();
             $i = 0;
@@ -118,7 +114,7 @@ function hexStringToByteArray($str) {
             }
 
             return $bytes;
-}
+    }
 
 function byteArrayToHexString($bytes) {
     $nibbleToChar = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
@@ -148,8 +144,8 @@ function byteArrayToHexString($bytes) {
         if (count($bytes1) !== count($bytes2))
             return false;
 
-        for (var i = 0; i < bytes1.length; ++i) {
-            if (bytes1[i] !== bytes2[i])
+        for ($i = 0; $i < count($bytes1); ++$i) {
+            if ($bytes1[$i] !== $bytes2[$i])
                 return false;
         }
 
@@ -157,9 +153,39 @@ function byteArrayToHexString($bytes) {
     }
 
 
+    function secretPhraseToPublicKey(secretPhrase) {
+            $secretPhraseBytes = hexStringToByteArray($secretPhrase);
+            $digest = hash("sha256", $secretPhrase);
+            return byteArrayToHexString((new Curve25519())->keygen($digest)->p);
+        }
+    }
+
+    function secretPhraseToPrivateKey($secretPhrase) {
+        $h = hexStringToByteArray(hash("sha256", $secretPhrase));
+        return byteArrayToHexString((new Curve25519())->clamp($h));
+    }
+
+    /*function secretPhraseToAccountId($secretPhrase) {
+        return $this->getAccountIdFromPublicKey(NRS.getPublicKey(converters.stringToHexString(secretPhrase)));
+    }
+
+    function publicKeyToAccountId($publicKey) {
+        $hex = $this->hexStringToByteArray($publicKey);
+
+        _hash.init();
+        _hash.update(hex);
+
+        $account = hash("sha256", hex2bin($publicKey));
+
+        $slice = substr(hexStringToByteArray($account),0, 8);
+
+        var accountId = byteArrayToBigInteger(slice).toString();
+
+        return accountId;
+    }*/
+
+
 }
-
-
 
     /* Ported to PHP from Javascript by Alex Jones 1/29/15
  * Ported to JavaScript from Java 07/01/14.
