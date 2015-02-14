@@ -44,63 +44,158 @@
 
             $v = $this->curve->sign($h, $x, $s);
 
-            return $this->convert->byteArrayToHexString(array_merge($v, $h));
+            return (array_merge($v, $h));
         }
 
 
 
-        function verifyBytes(signature, message, publicKey) {
-            $signatureBytes = $this->convert->stringToByteArray($signature);
-            $messageBytes = $this->convert->stringToByteArray($message);
-            $publicKeyBytes = $this->convert->stringToByteArray($publicKey);
-            $v = substr($signatureBytes, 0, 32);
-            $h = substr($signatureBytes, 32);
+        function verifyBytes($signature, $message, $publicKey) {
+            $signatureBytes = ($signature);
+            $messageBytes = $message;
+            $publicKeyBytes = $this->convert->hexStringToByteArray($publicKey);
+            $v = array_slice($signatureBytes, 0, 32);
+            $h = array_slice($signatureBytes, 32);
             $y = $this->curve->verify($v, $h, $publicKeyBytes);
 
-            $m = hash("sha256", hex2bin($this->convert->byteArrayToHexString($messageBytes));
+            $m = $this->convert->hexStringToByteArray(hash("sha256", hex2bin($this->convert->byteArrayToHexString($messageBytes))));
 
-            $h2 = hash("sha256", hex2bin($this->convert->byteArrayToHexString(array_merge($m, $y))));
+            $h2 =  $this->convert->hexStringToByteArray(hash("sha256", hex2bin($this->convert->byteArrayToHexString(array_merge($m, $y)))));
 
             return $this->convert->areByteArraysEqual($h, $h2);
         }
 
-}
 
-class Converters {
-
-    public function charToNibble($char)
-    {
-        switch($char)
+        function generateToken($websiteString, $secretPhrase)
         {
-            case "0": return 0;
-            case "1": return 1;
-            case "2": return 2;
-            case "3": return 3;
-            case "4": return 4;
-            case "5": return 5;
-            case "6": return 6;
-            case "7": return 7;
-            case "8": return 8;
-            case "9": return 9;
-            case "a": return 10;
-            case "A": return 10;
-            case "b": return 11;
-            case "B": return 11;
-            case "c": return 12;
-            case "C": return 12;
-            case "d": return 13;
-            case "D": return 13;
-            case "e": return 14;
-            case "E": return 14;
-            case "f": return 15;
-            case "F": return 15;
+            //alert(converters.stringToHexString(websiteString));
+            $epochNum = 1385294400;
+
+            $hexwebsite = $this->convert->stringToHexString($websiteString);
+            $website = $this->convert->hexStringToByteArray($hexwebsite);
+            $data = array();
+            $data = array_merge($website, $this->convert->hexStringToByteArray($this->convert->secretPhraseToPublicKey($secretPhrase)));
+            $unix = time();
+            $timestamp = $unix - $epochNum;
+            $timestamparray = $this->convert->int32ToByteArray($timestamp);
+            $data = array_merge($data, $timestamparray);
+
+            $token = array();
+            $token = array_merge($this->convert->hexStringToByteArray($this->convert->secretPhraseToPublicKey($secretPhrase)), $timestamparray);
+
+            $sig = $this->signBytes($data, $secretPhrase);
+
+            $token = array_merge($token, $sig);
+            $buf = "";
+
+            for ($ptr = 0; $ptr < 100; $ptr += 5) {
+
+                $nbr = array();
+                $nbr[0] = $token[$ptr] & 0xFF;
+                $nbr[1] = $token[$ptr+1] & 0xFF;
+                $nbr[2] = $token[$ptr+2] & 0xFF;
+                $nbr[3] = $token[$ptr+3] & 0xFF;
+                $nbr[4] = $token[$ptr+4] & 0xFF;
+                $number = $this->convert->byteArrayToInteger($nbr);
+                if ($number < 32) {
+                    $buf.="0000000";
+                } else if ($number < 1024) {
+                    $buf.="000000";
+                } else if ($number < 32768) {
+                    $buf.="00000";
+                } else if ($number < 1048576) {
+                    $buf.="0000";
+                } else if ($number < 33554432) {
+                    $buf.="000";
+                } else if ($number < 1073741824) {
+                    $buf.="00";
+                } else if ($number < 34359738368) {
+                    $buf.="0";
+                }
+                $buf .= base_convert($number, 10, 32);
+
+            }
+            return $buf;
+
         }
-        return 0;
+
+        function parseToken($tokenString, $website)
+        {
+            $websiteBytes = $this->convert->stringToByteArray($website);
+            $tokenBytes = array();
+            $i = 0;
+            $j = 0;
+
+            for (; $i < strlen($tokenString); $i += 8, $j += 5) {
+                $number = intval(substr($tokenString,$i, 8), 32);
+                $part = $this->convert->hexStringToByteArray(base_convert((String)$number, 10, 16));
+                $tokenBytes[$j] = $part[4];
+                $tokenBytes[$j + 1] = $part[3];
+                $tokenBytes[$j + 2] = $part[2];
+                $tokenBytes[$j + 3] = $part[1];
+                $tokenBytes[$j + 4] = $part[0];
+
+            }
+
+            if ($i != 160) {
+                new Exception("tokenString parsed to invalid size");
+            }
+            $publicKey = array();
+            $publicKey = array_slice($tokenBytes, 0, 32);
+            $timebytes = array($tokenBytes[32], $tokenBytes[33], $tokenBytes[34], $tokenBytes[35]);
+
+            $timestamp = $this->convert->byteArrayToInteger($timebytes);
+            $signature = array_slice($tokenBytes, 36, 100);
+
+            $data = array_merge($websiteBytes, array_slice($tokenBytes, 0, 36));
+            
+            $isValid = $this->verifyBytes($signature, $data, $this->convert->byteArrayToHexString($publicKey));
+
+            $ret = new STDClass();
+            $ret->isValid = $isValid;
+            $ret->timestamp = $timestamp;
+            $ret->publicKey = $this->convert->byteArrayToHexString($publicKey);
+
+            return $ret;
+
+        }
+
     }
 
+    class Converters {
 
-    function hexStringToByteArray($str) {
+        public function charToNibble($char)
+        {
+            switch($char)
+            {
+                case "0": return 0;
+                case "1": return 1;
+                case "2": return 2;
+                case "3": return 3;
+                case "4": return 4;
+                case "5": return 5;
+                case "6": return 6;
+                case "7": return 7;
+                case "8": return 8;
+                case "9": return 9;
+                case "a": return 10;
+                case "A": return 10;
+                case "b": return 11;
+                case "B": return 11;
+                case "c": return 12;
+                case "C": return 12;
+                case "d": return 13;
+                case "D": return 13;
+                case "e": return 14;
+                case "E": return 14;
+                case "f": return 15;
+                case "F": return 15;
+            }
+            return 0;
+        }
 
+
+        function hexStringToByteArray($str) 
+        {
             $bytes = array();
             $i = 0;
             if (0 !== strlen($str) % 2) {
@@ -110,14 +205,13 @@ class Converters {
 
             for (; $i < strlen($str) - 1; $i += 2) {
                 array_push($bytes, ($this->charToNibble($str[$i]) << 4) + $this->charToNibble($str[$i + 1]));
-
             }
-
             return $bytes;
-    }
+        }
 
-function byteArrayToHexString($bytes) {
-    $nibbleToChar = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
+        function byteArrayToHexString($bytes)
+        {
+            $nibbleToChar = ["0","1","2","3","4","5","6","7","8","9","a","b","c","d","e","f"];
 
             $str = '';
             for ($i = 0; $i < count($bytes); ++$i) {
@@ -130,9 +224,8 @@ function byteArrayToHexString($bytes) {
             return $str;
         }
 
-        function stringToByteArray($str) {
-            //str = unescape(encodeURIComponent(str)); //temporary
-
+        function stringToByteArray($str) 
+        {
             $bytes = array_pad(array(), strlen($str), 0);
             for ($i = 0; $i < strlen($str); ++$i)
                 $bytes[$i] = ord($str[$i]);
@@ -140,52 +233,65 @@ function byteArrayToHexString($bytes) {
             return $bytes;
         }
 
- function areByteArraysEqual($bytes1, $bytes2) {
-        if (count($bytes1) !== count($bytes2))
-            return false;
-
-        for ($i = 0; $i < count($bytes1); ++$i) {
-            if ($bytes1[$i] !== $bytes2[$i])
+        function areByteArraysEqual($bytes1, $bytes2) 
+        {
+            if (count($bytes1) !== count($bytes2))
                 return false;
+
+            for ($i = 0; $i < count($bytes1); ++$i) {
+                if ($bytes1[$i] !== $bytes2[$i])
+                    return false;
+            }
+
+            return true;
         }
 
-        return true;
-    }
 
+        function secretPhraseToPublicKey($secretPhrase) 
+        {
+            $secretPhraseBytes = $this->stringToByteArray($secretPhrase);
+            $digest = $this->hexStringToByteArray(hash("sha256", $secretPhrase));
+            return $this->byteArrayToHexString((new Curve25519())->keygen($digest)->p);
+        }
+    
+        function secretPhraseToPrivateKey($secretPhrase) 
+        {
+            $h = $this->stringToByteArray(hash("sha256", $secretPhrase));
+            return $this->byteArrayToHexString((new Curve25519())->clamp($h));
+        }
 
-    function secretPhraseToPublicKey(secretPhrase) {
-            $secretPhraseBytes = hexStringToByteArray($secretPhrase);
-            $digest = hash("sha256", $secretPhrase);
-            return byteArrayToHexString((new Curve25519())->keygen($digest)->p);
+        function int32ToByteArray($long)
+        {
+            // we want to represent the input as a 8-bytes array
+            $byteArray = array_pad(array(), 4, 0);
+
+            for ( $index = 0; $index < count($byteArray); $index ++ ) {
+                $byte = $long & 0xff;
+                $byteArray [ $index ] = $byte;
+                $long = ($long - $byte) / 256 ;
+            }
+
+            return $byteArray;
+        }
+
+        function byteArrayToInteger($byteArray) {
+            // we want to represent the input as a 8-bytes array
+            $intval = 0;
+
+            for ( $index = 0; $index < count($byteArray); $index ++ ) {
+                $byt = $byteArray[$index] & 0xFF;
+                $value = $byt * pow(256, $index);
+                $intval += $value;
+            }
+
+            return $intval;
+        }
+
+        function stringToHexString($str) {
+            return $this->byteArrayToHexString($this->stringToByteArray($str));
         }
     }
 
-    function secretPhraseToPrivateKey($secretPhrase) {
-        $h = hexStringToByteArray(hash("sha256", $secretPhrase));
-        return byteArrayToHexString((new Curve25519())->clamp($h));
-    }
-
-    /*function secretPhraseToAccountId($secretPhrase) {
-        return $this->getAccountIdFromPublicKey(NRS.getPublicKey(converters.stringToHexString(secretPhrase)));
-    }
-
-    function publicKeyToAccountId($publicKey) {
-        $hex = $this->hexStringToByteArray($publicKey);
-
-        _hash.init();
-        _hash.update(hex);
-
-        $account = hash("sha256", hex2bin($publicKey));
-
-        $slice = substr(hexStringToByteArray($account),0, 8);
-
-        var accountId = byteArrayToBigInteger(slice).toString();
-
-        return accountId;
-    }*/
-
-
-}
 
     /* Ported to PHP from Javascript by Alex Jones 1/29/15
  * Ported to JavaScript from Java 07/01/14.
@@ -552,7 +658,7 @@ class Curve25519 {
         $this->recip($v, $t1, 1); /* v = (2u)^((p-5)/8)  */
         $this->sqr($x, $v); /* x = v^2       */
         $this->mul($t2, $t1, $x); /* t2 = 2uv^2       */
-        $this->sub($t2, $t2, $C1); /* t2 = 2uv^2-1        */
+        $this->sub($t2, $t2, $this->C1); /* t2 = 2uv^2-1        */
         $this->mul($t1, $v, $t2); /* t1 = v(2uv^2-1)  */
         $this->mul($x, $u, $t1); /* x = uv(2uv^2-1)   */
     }
@@ -986,8 +1092,6 @@ function c255lreduce (&$a, &$a15) {
         // tmp1 = (x-h)*s mod q
         $this->mula32($tmp1, $v, $s, 32, 1);
         $this->divmod($tmp2, $tmp1, 64, $this->ORDER, 32);
-
-                        echo json_encode($tmp1);
  
 
         for ($w = 0, $i = 0; $i < 32; $i++) {
@@ -1028,6 +1132,8 @@ function c255lreduce (&$a, &$a15) {
         $this->set($p[0], 9);
         $this->unpack($p[1], $P);
 
+
+
         /* set s[0] to P+G and s[1] to P-G  */
 
         /* s[0] = (Py^2 + Gy^2 - 2 Py Gy)/(Px - Gx)^2 - Px - Gx - 486662  */
@@ -1035,23 +1141,28 @@ function c255lreduce (&$a, &$a15) {
 
         $this->x_to_y2($t1[0], $t2[0], $p[1]); /* t2[0] = Py^2  */
         $this->sqrt($t1[0], $t2[0]); /* t1[0] = Py or -Py  */
+
         $j = $this->is_negative($t1[0]); /*      ... check which  */
-        $this->add($t2[0], $t2[0], $this->C39420360); /* $t2[0] = Py^2 + Gy^2  */
-        $this->mul($t2[1], $this->BASE_2Y, $t1[0]); /* $t2[1] = 2 Py Gy or -2 Py Gy  */
-        $this->sub($t1[$j], $t2[0], $t2[1]); /* $t1[0] = Py^2 + Gy^2 - 2 Py Gy  */
-        $this->add($t1[1 - $j], $t2[0], $t2[1]); /* $t1[1] = Py^2 + Gy^2 + 2 Py Gy  */
-        $this->cpy($t2[0], $p[1]); /* $t2[0] = Px  */
-        $this->sub($t2[0], $t2[0], $C9); /* $t2[0] = Px - Gx  */
-        $this->sqr($t2[1], $t2[0]); /* $t2[1] = (Px - Gx)^2  */
-        $this->recip($t2[0], $t2[1], 0); /* $t2[0] = 1/(Px - Gx)^2  */
-        $this->mul($s[0], $t1[0], $t2[0]); /* $s[0] = $t1[0]/(Px - Gx)^2  */
-        $this->sub($s[0], $s[0], $p[1]); /* $s[0] = $t1[0]/(Px - Gx)^2 - Px  */
-        $this->sub($s[0], $s[0], $this->C486671); /* $s[0] = X(P+G)  */
-        $this->mul($s[1], $t1[1], $t2[0]); /* $s[1] = $t1[1]/(Px - Gx)^2  */
-        $this->sub($s[1], $s[1], $p[1]); /* $s[1] = $t1[1]/(Px - Gx)^2 - Px  */
-        $this->sub($s[1], $s[1], $this->C486671); /* $s[1] = X(P-G)  */
-        $this->mul_small($s[0], $s[0], 1); /* reduce $s[0] */
-        $this->mul_small($s[1], $s[1], 1); /* reduce $s[1] */
+        $this->add($t2[0], $t2[0], $this->C39420360); /* t2[0] = Py^2 + Gy^2  */
+        $this->mul($t2[1], $this->BASE_2Y, $t1[0]); /* t2[1] = 2 Py Gy or -2 Py Gy  */
+        $this->sub($t1[$j], $t2[0], $t2[1]); /* t1[0] = Py^2 + Gy^2 - 2 Py Gy  */
+        $this->add($t1[1 - $j], $t2[0], $t2[1]); /* t1[1] = Py^2 + Gy^2 + 2 Py Gy  */
+        $this->cpy($t2[0], $p[1]); /* t2[0] = Px  */
+        $this->sub($t2[0], $t2[0], $this->C9); /* t2[0] = Px - Gx  */
+        $this->sqr($t2[1], $t2[0]); /* t2[1] = (Px - Gx)^2  */
+        $this->recip($t2[0], $t2[1], 0); /* t2[0] = 1/(Px - Gx)^2  */
+        $this->mul($s[0], $t1[0], $t2[0]); /* s[0] = t1[0]/(Px - Gx)^2  */
+
+        $this->sub($s[0], $s[0], $p[1]); /* s[0] = t1[0]/(Px - Gx)^2 - Px  */
+        $this->sub($s[0], $s[0], $this->C486671); /* s[0] = X(P+G)  */
+        $this->mul($s[1], $t1[1], $t2[0]); /* s[1] = t1[1]/(Px - Gx)^2  */
+        $this->sub($s[1], $s[1], $p[1]); /* s[1] = t1[1]/(Px - Gx)^2 - Px  */
+        $this->sub($s[1], $s[1], $this->C486671); /* s[1] = X(P-G)  */
+
+        $this->mul_small($s[0], $s[0], 1); /* reduce s[0] */
+        $this-> mul_small($s[1], $s[1], 1); /* reduce s[1] */
+
+
 
         /* prepare the chain  */
         for ($i = 0; $i < 32; $i++) {
@@ -1101,7 +1212,7 @@ function c255lreduce (&$a, &$a15) {
 
                 $k = (($vi ^ $vi >> 1) >> $j & 1)
                     + (($hi ^ $hi >> 1) >> $j & 1);
-                $this->mont_dbl($yx[2], $yz[2], $t1[$k], $t2[$k], $yx[0], yz[0]);
+                $this->mont_dbl($yx[2], $yz[2], $t1[$k], $t2[$k], $yx[0], $yz[0]);
 
                 $k = ($di >> $j & 2) ^ (($di >> $j & 1) << 1);
                 $this->mont_add($t1[1], $t2[1], $t1[$k], $t2[$k], $yx[1], $yz[1],

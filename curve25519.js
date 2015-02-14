@@ -363,12 +363,15 @@ var curve25519 = function () {
         var t2 = createUnpackedArray();
 
         add(t1, u, u); /* t1 = 2u		*/
+
         recip(v, t1, 1); /* v = (2u)^((p-5)/8)	*/
         sqr(x, v); /* x = v^2		*/
+
         mul(t2, t1, x); /* t2 = 2uv^2		*/
         sub(t2, t2, C1); /* t2 = 2uv^2-1		*/
         mul(t1, v, t2); /* t1 = v(2uv^2-1)	*/
         mul(x, u, t1); /* x = uv(2uv^2-1)	*/
+        alert(JSON.stringify(x));
     }
 
     //endregion
@@ -757,13 +760,18 @@ var curve25519 = function () {
         set(p[0], 9);
         unpack(p[1], P);
 
+
+
         /* set s[0] to P+G and s[1] to P-G  */
 
         /* s[0] = (Py^2 + Gy^2 - 2 Py Gy)/(Px - Gx)^2 - Px - Gx - 486662  */
         /* s[1] = (Py^2 + Gy^2 + 2 Py Gy)/(Px - Gx)^2 - Px - Gx - 486662  */
 
         x_to_y2(t1[0], t2[0], p[1]); /* t2[0] = Py^2  */
+                                                                alert(JSON.stringify(t1));
+
         sqrt(t1[0], t2[0]); /* t1[0] = Py or -Py  */
+
         j = is_negative(t1[0]); /*      ... check which  */
         add(t2[0], t2[0], C39420360); /* t2[0] = Py^2 + Gy^2  */
         mul(t2[1], BASE_2Y, t1[0]); /* t2[1] = 2 Py Gy or -2 Py Gy  */
@@ -774,13 +782,16 @@ var curve25519 = function () {
         sqr(t2[1], t2[0]); /* t2[1] = (Px - Gx)^2  */
         recip(t2[0], t2[1], 0); /* t2[0] = 1/(Px - Gx)^2  */
         mul(s[0], t1[0], t2[0]); /* s[0] = t1[0]/(Px - Gx)^2  */
+
         sub(s[0], s[0], p[1]); /* s[0] = t1[0]/(Px - Gx)^2 - Px  */
         sub(s[0], s[0], C486671); /* s[0] = X(P+G)  */
         mul(s[1], t1[1], t2[0]); /* s[1] = t1[1]/(Px - Gx)^2  */
         sub(s[1], s[1], p[1]); /* s[1] = t1[1]/(Px - Gx)^2 - Px  */
         sub(s[1], s[1], C486671); /* s[1] = X(P-G)  */
+ 
         mul_small(s[0], s[0], 1); /* reduce s[0] */
         mul_small(s[1], s[1], 1); /* reduce s[1] */
+
 
         /* prepare the chain  */
         for (i = 0; i < 32; i++) {
