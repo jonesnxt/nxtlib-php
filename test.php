@@ -1,112 +1,36 @@
 <?php 
-// test everything out...
+// lets try this out
+
+echo "<h1>Demo of nxtlib-php</h1>";
+
+// initialize
 include("nxtlib.php");
 $nxt = new Nxtlib("jnxt.org");
-//echo $nxt->sign("test", "test");
 
-$passphrase = "test";
-$pub = (new Converters())->secretPhraseToPublicKey($passphrase);
-echo json_encode($pub);
-$sig = $nxt->generateToken("huh", $passphrase);
-echo "<br/>" . json_encode($sig);
+// request
+$req = $nxt->request("getBalance", json_decode('{"account": "NXT-MRCC-2YLS-8M54-3CMAJ"}'));
+echo "<p>Balance of genesis request to jnxt.org server: </p><pre>" . json_encode($req) . "</pre>";
 
-var_dump($nxt->parseToken($sig, "huh"));
+// public key
+$pub = (new Converters())->secretPhraseToPublicKey("password");
+echo "<p>Public key of account with secretPhrase of 'password': <pre>" . $pub . "</pre>";
 
+// signBytes
+$sig = $nxt->signBytes([0, 1, 2], "password");
+echo "<p>Signature of bytes [0, 1, 2] signed with the passphrase 'password': </p><pre>" . $nxt->convert->byteArrayToHexString($sig) . "</pre>";
 
-//$that = $nxt->sign("test", "test");
-echo "<br/><br/>";
-//echo json_encode((new Converters())->hexStringToByteArray($that));
+// verifyBytes
+$valid = $nxt->verifyBytes($sig, [0,1,2], $pub);
+echo "<p>Verification of the signed bytes: </p><pre>";
+var_dump($valid);
+echo "</pre>";
+
+// generateToken
+$token = $nxt->generateToken("php", "password");
+echo "<p>Token of text 'php' signed with account of passPhrase 'password': </p><pre>" . $token . "</pre>";
+
+// parseToken
+$parse = $nxt->parseToken($token, "php");
+echo "<p>Data given by parsing the token generated above: </p><pre>" . json_encode($parse) . "</pre>";
 
 ?>
-<script src="curve25519.js"></script>
-<script src="converters.js"></script>
-<script src="jssha256.js"></script>
-<script>
-
-var _hash = {
-		init: SHA256_init,
-		update: SHA256_write,
-		getBytes: SHA256_finalize
-	};
-
-function simpleHash(message) {
-		_hash.init();
-		_hash.update(message);
-		return _hash.getBytes();
-	}
-
-
-    function secretPhraseToPublicKey(secretPhrase) {
-            secretPhraseBytes = converters.stringToByteArray(secretPhrase);
-            digest = simpleHash(secretPhrase);
-            return converters.byteArrayToHexString(curve25519.keygen(digest).p);
-        }
-
-
-function sign (message, secretPhrase) {
-		var messageBytes = (message);
-		var secretPhraseBytes = converters.stringToByteArray(secretPhrase);
-		var digest = simpleHash(secretPhraseBytes);
-
-		var s = curve25519.keygen(digest).s;
-
-
-		var m = simpleHash(messageBytes);
-		_hash.init();
-		_hash.update(m);
-		_hash.update(s);
-		var x = _hash.getBytes();
-
-		var y = curve25519.keygen(x).p;
-
-		_hash.init();
-		_hash.update(m);
-		_hash.update(y);
-		var h = _hash.getBytes();
-
-
-		var v = curve25519.sign(h, x, s);
-
-
-		return v.concat(h);
-	}
-
-		function areByteArraysEqual(bytes1, bytes2) {
-		if (bytes1.length !== bytes2.length)
-			return false;
-
-		for (var i = 0; i < bytes1.length; ++i) {
-			if (bytes1[i] !== bytes2[i])
-				return false;
-		}
-
-		return true;
-	}
-
-		function verifyBytes(signature, message, publicKey) {
-		var signatureBytes = signature;
-		var messageBytes = message;
-		var publicKeyBytes = publicKey;
-		var v = signatureBytes.slice(0, 32);
-		var h = signatureBytes.slice(32);
-		var y = curve25519.verify(v, h, publicKeyBytes);
-
-		var m = simpleHash(messageBytes);
-
-		_hash.init();
-		_hash.update(m);
-		_hash.update(y);
-		var h2 = _hash.getBytes();
-
-		return areByteArraysEqual(h, h2);
-	}
-
-var pub = secretPhraseToPublicKey("test");
-//alert(pub);
-var sig = sign([0,1,2], "test");
-//alert(sig);
-
-//alert(verifyBytes(sig, [0,1,2], converters.hexStringToByteArray(pub)));
-
-
-</script>

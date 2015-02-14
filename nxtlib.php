@@ -17,7 +17,7 @@
 
 		function request($requestType, $params)
 		{
-			$reqString = "http://".$nodeAddress.":7876/nxt?requestType=".$requestType."&".http_build_query($params);
+			$reqString = "http://".$this->nodeAddress.":7876/nxt?requestType=".$requestType."&".http_build_query($params);
 			$rawtext = file_get_contents($reqString);
 			return json_decode($rawtext);
 		}
